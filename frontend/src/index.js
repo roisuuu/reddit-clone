@@ -6,6 +6,7 @@
 
 // import your app here
 import initApp from './main.js';
+// adding a comment to check if update messes up frontend files
 
 // const API_URL = 'http://127.0.0.1:8080/data';
 
