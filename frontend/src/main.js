@@ -5,11 +5,14 @@
  */
 
 // import your own scripts here.
-
+import loginBasic from './login.js';
+import signUpBasic from './signUp.js';
 // your app must take an apiUrl as an argument --
 // this will allow us to verify your apps behaviour with 
 // different datasets.
 function initApp(apiUrl) {
+  loginBasic();
+  signUpBasic();
   // your app initialisation goes here
 }
 
