@@ -1,11 +1,11 @@
-function loginBasic () {
-    const navItems = document.getElementsByClassName("nav-item");
-    const loginButton = navItems[1];
-    console.log(navItems[1]);
+function loginBasic() {
+    const navItems = document.getElementsByClassName("button-primary");
+    const loginButton = navItems[0];
+    console.log(navItems[0]);
 
     // function that creates a login modal, with html and css
 
-    loginButton.onclick = function () {
+    loginButton.onclick = function() {
         // summon the modal,
         // exit if clicked anywhere else
         /* 
@@ -15,7 +15,7 @@ function loginBasic () {
             }
         }
         */
-        alert("You pressed the login!");     
+        alert("You pressed the login!");
     };
 };
 
