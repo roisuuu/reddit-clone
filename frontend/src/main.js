@@ -5,13 +5,10 @@
  */
 
 // import your own scripts here.
-//import loginBasic from './login.js';
-//import signUpBasic from './signUp.js';
 // your app must take an apiUrl as an argument --
 // this will allow us to verify your apps behaviour with 
 // different datasets.
 function initApp(apiUrl) {
-    //signUpBasic();
     // your app initialisation goes here
 
     // create the header
@@ -45,7 +42,8 @@ function initApp(apiUrl) {
     loginList.appendChild(loginButt);
     loginButt.textContent = ('Login');
 
-    //loginBasic();
+    loginBasic();
+    createLoginModal();
 
     // creates sign up button
     const signUpList = document.createElement('li');
@@ -60,11 +58,59 @@ function initApp(apiUrl) {
     signUpList.appendChild(signUpButt);
     signUpButt.textContent = ('Sign Up');
 
+    signUpBasic();
+
 }
 
-function createLoginForm() {
+function loginBasic() {
+    const navItems = document.getElementsByClassName("nav-item");
+    const loginButton = navItems[0];
+    console.log(navItems[0]);
+
+    // function that creates a login modal, with html and css
+
+    loginButton.onclick = function() {
+        // summon the modal,
+        // exit if clicked anywhere else
+        /* 
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        */
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal.style.display === "block") {
+            loginModal.style.display = "none";
+        } else {
+            loginModal.style.display = "block";
+        }
+        //alert("You pressed the login!");
+    };
+};
+
+function createLoginModal() {
+    const loginModal = document.createElement('div');
+    loginModal.classList.add('modal-content');
+    loginModal.classList.add('login-form');
+    loginModal.id = 'loginModal';
+    document.getElementById('root').appendChild(loginModal);
+
+    const loginForm = document.createElement('form');
+    loginForm.id = 'loginForm';
+    //loginForm.classList.add('modal-content');
+    loginModal.appendChild(loginForm);
+
 
 };
 
+function signUpBasic() {
+    const navItems = document.getElementsByClassName("nav-item");
+    const signUpButton = navItems[1];
+    console.log(navItems[1]);
+    signUpButton.onclick = function signUpBasic() {
+        alert("You pressed the signup!");
+    };
+};
 
 export default initApp;
