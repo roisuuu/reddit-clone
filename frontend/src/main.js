@@ -98,8 +98,21 @@ function createLoginModal() {
 
     const loginForm = document.createElement('form');
     loginForm.id = 'loginForm';
-    //loginForm.classList.add('modal-content');
     loginModal.appendChild(loginForm);
+
+    //loginForm.classList.add('modal-content');
+    const userName = document.createElement('input');
+    userName.setAttribute('type', "text");
+    userName.setAttribute('name', "username");
+    const password = document.createElement('input');
+    password.setAttribute('type', "text");
+    password.setAttribute('name', "password");
+    const submitButton = document.createElement('input');
+    submitButton.setAttribute('type', "submit");
+    submitButton.setAttribute('value', "Submit");
+    loginForm.appendChild(userName);
+    loginForm.appendChild(password);
+    loginForm.appendChild(submitButton);
 
 
 };
