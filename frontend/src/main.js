@@ -72,23 +72,27 @@ function loginBasic() {
     loginButton.onclick = function() {
         // summon the modal,
         // exit if clicked anywhere else
-        /* 
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-        */
-        const loginModal = document.getElementById('loginModal');
+        const loginModal = document.getElementById('loginModal')
+
+
         if (loginModal.style.display === "block") {
             loginModal.style.display = "none";
         } else {
             loginModal.style.display = "block";
+            /*
+            window.onclick = function(event) {
+                console.log("im out here");
+                if (event.target !== loginModal) {
+                    console.log("tryna make a change");
+                    loginModal.style.display = "none";
+                }
+            }; */
         }
         //alert("You pressed the login!");
     };
 };
 
+// a function that creates the login modal
 function createLoginModal() {
     const loginModal = document.createElement('div');
     loginModal.classList.add('modal-content');
@@ -96,20 +100,36 @@ function createLoginModal() {
     loginModal.id = 'loginModal';
     document.getElementById('root').appendChild(loginModal);
 
+    const title = document.createElement('h1');
+    title.id = 'loginTitle';
+    title.textContent = ('Login');
+    loginModal.appendChild(title);
+
     const loginForm = document.createElement('form');
     loginForm.id = 'loginForm';
     loginModal.appendChild(loginForm);
+    loginForm.style.textAlign = "center";
 
     //loginForm.classList.add('modal-content');
+    // creates the username form
     const userName = document.createElement('input');
     userName.setAttribute('type', "text");
+    userName.setAttribute('placeholder', "Username")
     userName.setAttribute('name', "username");
+    userName.style.width = "80%";
+    // creates the password form
     const password = document.createElement('input');
-    password.setAttribute('type', "text");
+    password.setAttribute('type', "password");
+    password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
+    password.style.width = "80%";
+    // creates a submit button
     const submitButton = document.createElement('input');
     submitButton.setAttribute('type', "submit");
     submitButton.setAttribute('value', "Submit");
+    submitButton.style.width = "80%";
+
+    // appends all of the forms to the loginForm element
     loginForm.appendChild(userName);
     loginForm.appendChild(password);
     loginForm.appendChild(submitButton);
