@@ -29,6 +29,18 @@ function initApp(apiUrl) {
     buttonList.classList.add('nav');
     banner.appendChild(buttonList);
 
+    // adds search bar to banner
+    const searchBarList = document.createElement('li');
+    searchBarList.classList.add('nav-item');
+    buttonList.appendChild(searchBarList);
+
+    const searchBar = document.createElement('input');
+    searchBar.id = 'search';
+    searchBar.dataset.search = "";
+    searchBar.setAttribute('type', "search");
+    searchBar.setAttribute('placeholder', 'Search Seddit');
+    searchBarList.appendChild(searchBar);
+
     // adds login button to banner
     const loginList = document.createElement('li');
     loginList.classList.add('nav-item');
@@ -64,8 +76,8 @@ function initApp(apiUrl) {
 
 function loginBasic() {
     const navItems = document.getElementsByClassName("nav-item");
-    const loginButton = navItems[0];
-    console.log(navItems[0]);
+    const loginButton = navItems[1];
+    console.log(navItems[1]);
 
     // function that creates a login modal, with html and css
 
@@ -139,8 +151,8 @@ function createLoginModal() {
 
 function signUpBasic() {
     const navItems = document.getElementsByClassName("nav-item");
-    const signUpButton = navItems[1];
-    console.log(navItems[1]);
+    const signUpButton = navItems[2];
+    console.log(navItems[2]);
     signUpButton.onclick = function signUpBasic() {
         alert("You pressed the signup!");
     };
