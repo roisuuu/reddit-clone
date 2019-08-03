@@ -137,12 +137,22 @@ footer>* {
     display: none;
 }
 
+.sign-up-form {
+    display: none;
+}
 
-/* Modal Header */
 
-.modal-header {
+/* Modal Headers */
+
+.login-header {
     padding: 2px 16px;
-    background-color: #5cb85c;
+    background-color: var(--reddit-orange);
+    color: white;
+}
+
+.sign-up-header {
+    padding: 2px 16px;
+    background-color: var(--reddit-blue);
     color: white;
 }
 
