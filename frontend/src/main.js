@@ -291,11 +291,13 @@ function createMain() {
 };
 
 function fetchPost() {
-    // create post html framework
     createPostHTML();
+    // loop - for each post create a framework, then populate it with
+    // the data!!
     // fetch post data from json
 };
 
+// function creates the HTML framework for a post.
 function createPostHTML() {
     const post = document.createElement('li');
     post.classList.add('post');
@@ -327,6 +329,13 @@ function createPostHTML() {
     postInfo.classList.add('alt-text');
     postInfo.textContent = ('s/anime, 2hrs');
     author.appendChild(postInfo);
+
+    const thumbnailBox = document.createElement('div');
+    thumbnailBox.classList.add('post-thumbnail');
+    const img = document.createElement('img');
+    img.src = "../images/1_q.jpg";
+    thumbnailBox.appendChild(img);
+    post.appendChild(thumbnailBox);
 
     post.appendChild(postContent);
 }
