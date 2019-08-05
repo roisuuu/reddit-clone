@@ -12,7 +12,7 @@ function initApp(apiUrl) {
     // your app initialisation goes here
 
     initialiseBannerElements();
-
+    createMain();
 };
 
 // creates all banner elements: logo, login, search, sign up
@@ -112,6 +112,14 @@ function loginBasic() {
     };
 };
 
+function validateForm() {
+    let formData = document.forms["myForm"]["fname"].value;
+    if (formData == "") {
+        alert("Name must be filled out");
+        return false;
+    }
+};
+
 // a function that creates the login modal
 function createLoginModal() {
     const loginModal = document.createElement('div');
@@ -130,6 +138,7 @@ function createLoginModal() {
     loginForm.id = 'loginForm';
     loginModal.appendChild(loginForm);
     loginForm.style.textAlign = "center";
+    //loginForm.onsubmit = validateForm();
 
     //loginForm.classList.add('modal-content');
     // creates the username form
@@ -157,6 +166,17 @@ function createLoginModal() {
 
 
 };
+/*
+function checkMatching() {
+    if (document.getElementById('password').value ==
+        document.getElementById('confirmPassword').value) {
+        document.getElementById('pwMSG').style.color = 'green';
+        document.getElementById('pwMSG').textContent = ('matching');
+    } else {
+        document.getElementById('pwMSG').style.color = 'red';
+        document.getElementById('pwMSG').textContent = ('not matching');
+    }
+}; */
 
 function signUpBasic() {
     const navItems = document.getElementsByClassName("nav-item");
@@ -194,6 +214,7 @@ function createSignUpModal() {
     signUpForm.id = 'signUpForm';
     signUpModal.appendChild(signUpForm);
     signUpForm.style.textAlign = "center";
+    //signUpForm.onsubmit = validateForm();
 
     // creates the username form
     const userName = document.createElement('input');
@@ -209,16 +230,23 @@ function createSignUpModal() {
     email.style.width = "80%";
     // creates the password form
     const password = document.createElement('input');
+    password.id = 'password';
     password.setAttribute('type', "password");
     password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
     password.style.width = "80%";
+    //password.onkeyup = checkMatching();
     // creates the confirm password form
     const confirmPassword = document.createElement('input');
     confirmPassword.setAttribute('type', "password");
+    confirmPassword.id = 'confirmPassword';
     confirmPassword.setAttribute('placeholder', "Confirm Password");
     confirmPassword.setAttribute('name', "confirmPassword");
     confirmPassword.style.width = "80%";
+    //const matchingMSG = document.createElement('span');
+    //matchingMSG.id = 'message';
+    //confirmPassword.appendChild(matchingMSG);
+    //confirmPassword.onkeyup = checkMatching();
     // creates a submit button
     const submitButton = document.createElement('input');
     submitButton.setAttribute('type', "submit");
@@ -231,6 +259,67 @@ function createSignUpModal() {
     signUpForm.appendChild(password);
     signUpForm.appendChild(confirmPassword);
     signUpForm.appendChild(submitButton);
+};
+
+function createMain() {
+    // this is the main section which will house all the posts
+    const main = document.createElement('main');
+    document.getElementById('root').appendChild(main);
+    const postList = document.createElement('ul');
+    postList.id = "feed";
+    postList.dataset.idFeed = "";
+    main.appendChild(postList);
+
+    // creating the feed header
+    const header = document.createElement('div');
+    header.classList.add('feed-header');
+    postList.appendChild(header);
+    // h3
+    const headerText = document.createElement('h3');
+    headerText.classList.add('feed-title');
+    headerText.classList.add('alt-text');
+    headerText.textContent = ('Popular Posts on Seddit');
+    header.appendChild(headerText);
+    // button
+    const postButton = document.createElement('button');
+    postButton.classList.add('button');
+    postButton.classList.add('button-secondary');
+    postButton.textContent = ('Post');
+    header.appendChild(postButton);
+
+    fetchPost();
+};
+
+function fetchPost() {
+    // create post html framework
+    const post = document.createElement('li');
+    post.classList.add('post');
+    post.dataset.idPost = "";
+    document.getElementById('feed').appendChild(post);
+
+    const voteSection = document.createElement('div');
+    voteSection.classList.add('vote');
+    voteSection.dataset.idUpvotes = "";
+    post.appendChild(voteSection);
+
+    const postContent = document.createElement('div');
+    postContent.classList.add('content');
+    // heading of the post
+    const heading = document.createElement('h4');
+    heading.classList.add('post-title');
+    heading.classList.add('alt-text');
+    heading.dataset.idTitle = "";
+    postContent.appendChild(heading);
+    heading.textContent = ('Big tiddy goth gf');
+    // author of the post
+    const author = document.createElement('p');
+    author.classList.add('post-author');
+    author.dataset.idAuthor = "";
+    postContent.appendChild(author);
+    author.textContent = ('XxBigWeeb69xX');
+
+    post.appendChild(postContent);
+    // fetch post data from json
 };
 
 export default initApp;
