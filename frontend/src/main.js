@@ -292,6 +292,11 @@ function createMain() {
 
 function fetchPost() {
     // create post html framework
+    createPostHTML();
+    // fetch post data from json
+};
+
+function createPostHTML() {
     const post = document.createElement('li');
     post.classList.add('post');
     post.dataset.idPost = "";
@@ -316,10 +321,14 @@ function fetchPost() {
     author.classList.add('post-author');
     author.dataset.idAuthor = "";
     postContent.appendChild(author);
-    author.textContent = ('XxBigWeeb69xX - s/anime - 2hr');
+    author.textContent = ('By @XxBigWeeb69xX');
+    // includes which subseddit and time since posted
+    const postInfo = document.createElement('p');
+    postInfo.classList.add('alt-text');
+    postInfo.textContent = ('s/anime, 2hrs');
+    author.appendChild(postInfo);
 
     post.appendChild(postContent);
-    // fetch post data from json
-};
+}
 
 export default initApp;
