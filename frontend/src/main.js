@@ -316,7 +316,7 @@ function fetchPost() {
     author.classList.add('post-author');
     author.dataset.idAuthor = "";
     postContent.appendChild(author);
-    author.textContent = ('XxBigWeeb69xX');
+    author.textContent = ('XxBigWeeb69xX - s/anime - 2hr');
 
     post.appendChild(postContent);
     // fetch post data from json
