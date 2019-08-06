@@ -100,12 +100,12 @@ function initApp(apiUrl) {
                 console.log(response);
                 if (response.status === 200) {
                     console.log('true');
-                    alert('Successful Sign-Up!')
+                    alert('Successful Sign-In!')
                         //loginModal.reset();
                     loginModal.style.display = 'none';
                 } else {
                     console.log('false');
-                    alert('Sign-Up Failed, Error Code: ' + response.status);
+                    alert('Sign-In Failed, Error Code: ' + response.status);
                 }
             })
 
