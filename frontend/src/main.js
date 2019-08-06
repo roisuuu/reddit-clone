@@ -14,6 +14,40 @@ function initApp(apiUrl) {
     initialiseBannerElements();
     createMain();
 
+    const signUpForm = document.getElementById('signUpForm');
+    signUpForm.onsubmit = (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('newUser');
+        const firstName = document.getElementById('firstName');
+        const email = document.getElementById('email');
+        const password = document.getElementById('newPassword');
+        if ((username || password || email || firstName) === null) {
+            alert('please fill in all fields');
+            return false;
+        };
+
+        let details = {
+            "username": username,
+            "password": password,
+            "email": email,
+            "name": firstName
+        }
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(details),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        fetch(`${apiUrl}/auth/signup`, options)
+            .then(response => response.json())
+            .then(response => console.log(response))
+
+    }
+
     const loginForm = document.getElementById('loginForm');
     loginForm.onsubmit = (e) => {
         // e is the button
@@ -24,7 +58,7 @@ function initApp(apiUrl) {
         // convert those to json
         const username = document.getElementById('username').textContent;
         const password = document.getElementById('password').textContent;
-        if (username == "" || password == "") {
+        if (username === null || password === null) {
             alert('please fill in all fields');
             return false;
         };
@@ -44,7 +78,7 @@ function initApp(apiUrl) {
 
         fetch(`${apiUrl}/auth/login`, options)
             .then(response => response.json())
-            .then(response => alert(response.message))
+            .then(response => console.log(response))
 
     }
 };
@@ -265,28 +299,38 @@ function createSignUpModal() {
     userName.setAttribute('type', "text");
     userName.setAttribute('placeholder', "Create Username");
     userName.setAttribute('name', "username");
+    userName.id = 'newUser';
     userName.style.width = "80%";
+    // creates the name form
+    const name = document.createElement('input');
+    name.setAttribute('type', "text");
+    name.setAttribute('placeholder', "First Name");
+    name.setAttribute('name', "name");
+    name.id = 'firstName'
+    name.style.width = "80%";
     // creates the email form
     const email = document.createElement('input');
     email.setAttribute('type', "text");
     email.setAttribute('placeholder', "Email Address");
     email.setAttribute('name', "email");
+    email.id = 'email';
     email.style.width = "80%";
     // creates the password form
     const password = document.createElement('input');
-    password.id = 'password';
+    password.id = 'newPassword';
     password.setAttribute('type', "password");
     password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
     password.style.width = "80%";
     //password.onkeyup = checkMatching();
     // creates the confirm password form
+    /*
     const confirmPassword = document.createElement('input');
     confirmPassword.setAttribute('type', "password");
     confirmPassword.id = 'confirmPassword';
     confirmPassword.setAttribute('placeholder', "Confirm Password");
     confirmPassword.setAttribute('name', "confirmPassword");
-    confirmPassword.style.width = "80%";
+    confirmPassword.style.width = "80%"; */
     //const matchingMSG = document.createElement('span');
     //matchingMSG.id = 'message';
     //confirmPassword.appendChild(matchingMSG);
@@ -299,9 +343,10 @@ function createSignUpModal() {
 
     // appends all of the forms to the loginForm element
     signUpForm.appendChild(userName);
+    signUpForm.appendChild(name);
     signUpForm.appendChild(email);
     signUpForm.appendChild(password);
-    signUpForm.appendChild(confirmPassword);
+    //signUpForm.appendChild(confirmPassword);
     signUpForm.appendChild(submitButton);
 };
 
