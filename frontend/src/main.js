@@ -13,7 +13,46 @@ function initApp(apiUrl) {
 
     initialiseBannerElements();
     createMain();
+
+    const loginForm = document.getElementById('loginForm');
+    loginForm.onsubmit = (e) => {
+        // e is the button
+        e.preventDefault();
+
+        // get username
+        // get password
+        // convert those to json
+        const username = document.getElementById('username').textContent;
+        const password = document.getElementById('password').textContent;
+        if (username == "" || password == "") {
+            alert('please fill in all fields');
+            return false;
+        };
+
+        let userAndPw = {
+            "username": username,
+            "password": password
+        };
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(userAndPw),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        fetch(`${apiUrl}/auth/login`, options)
+            .then(response => response.json())
+            .then(response => alert(response.message))
+
+    }
 };
+
+const formToJSON = elements => [].reduce.call(elements, (data, element) => {
+    data[element.name] = element.value;
+    return data;
+}, {});
 
 // creates all banner elements: logo, login, search, sign up
 function initialiseBannerElements() {
@@ -138,17 +177,20 @@ function createLoginModal() {
     loginForm.id = 'loginForm';
     loginModal.appendChild(loginForm);
     loginForm.style.textAlign = "center";
+    loginForm.classList.add('modal-body');
     //loginForm.onsubmit = validateForm();
 
     //loginForm.classList.add('modal-content');
     // creates the username form
     const userName = document.createElement('input');
+    userName.id = ('username');
     userName.setAttribute('type', "text");
     userName.setAttribute('placeholder', "Username")
     userName.setAttribute('name', "username");
     userName.style.width = "80%";
     // creates the password form
     const password = document.createElement('input');
+    password.id = ('password');
     password.setAttribute('type', "password");
     password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
@@ -166,6 +208,8 @@ function createLoginModal() {
 
 
 };
+
+
 /*
 function checkMatching() {
     if (document.getElementById('password').value ==
@@ -296,6 +340,8 @@ function fetchPost() {
     // the data!!
     // fetch post data from json
 };
+
+//function populateFeed()
 
 // function creates the HTML framework for a post.
 function createPostHTML() {
