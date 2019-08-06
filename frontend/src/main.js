@@ -10,18 +10,20 @@
 // different datasets.
 function initApp(apiUrl) {
     // your app initialisation goes here
-
+    document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
     createMain();
 
     const signUpForm = document.getElementById('signUpForm');
+    const signUpModal = document.getElementById('signUpModal');
     signUpForm.onsubmit = (e) => {
         e.preventDefault();
 
-        const username = document.getElementById('newUser');
-        const firstName = document.getElementById('firstName');
-        const email = document.getElementById('email');
-        const password = document.getElementById('newPassword');
+        const username = document.getElementById('newUser').value;
+        //console.log(username);
+        const firstName = document.getElementById('firstName').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('newPassword').value;
         if ((username || password || email || firstName) === null) {
             alert('please fill in all fields');
             return false;
@@ -43,11 +45,25 @@ function initApp(apiUrl) {
         }
 
         fetch(`${apiUrl}/auth/signup`, options)
-            .then(response => response.json())
-            .then(response => console.log(response))
+            /*
+                .then(response => response.json())
+                .then(response => console.log(response)) */
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    console.log('true');
+                    alert('Successful Sign-Up!')
+                        //signUpModal.reset();
+                    signUpModal.style.display = "none";
+                } else {
+                    console.log('false');
+                    alert('Sign-Up Failed, Error Code: ' + response.status);
+                }
+            })
 
     }
 
+    const loginModal = document.getElementById('loginModal');
     const loginForm = document.getElementById('loginForm');
     loginForm.onsubmit = (e) => {
         // e is the button
@@ -56,8 +72,8 @@ function initApp(apiUrl) {
         // get username
         // get password
         // convert those to json
-        const username = document.getElementById('username').textContent;
-        const password = document.getElementById('password').textContent;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
         if (username === null || password === null) {
             alert('please fill in all fields');
             return false;
@@ -77,16 +93,25 @@ function initApp(apiUrl) {
         }
 
         fetch(`${apiUrl}/auth/login`, options)
-            .then(response => response.json())
-            .then(response => console.log(response))
+            /*
+                .then(response => response.json())
+                .then(response => console.log(response)) */
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    console.log('true');
+                    alert('Successful Sign-Up!')
+                        //loginModal.reset();
+                    loginModal.style.display = 'none';
+                } else {
+                    console.log('false');
+                    alert('Sign-Up Failed, Error Code: ' + response.status);
+                }
+            })
+
 
     }
 };
-
-const formToJSON = elements => [].reduce.call(elements, (data, element) => {
-    data[element.name] = element.value;
-    return data;
-}, {});
 
 // creates all banner elements: logo, login, search, sign up
 function initialiseBannerElements() {
@@ -196,6 +221,8 @@ function validateForm() {
 // a function that creates the login modal
 function createLoginModal() {
     const loginModal = document.createElement('div');
+    loginModal.style.position = 'absolute';
+    loginModal.style.zIndex = '1000';
     loginModal.classList.add('modal-content');
     loginModal.classList.add('login-form');
     loginModal.id = 'loginModal';
@@ -279,6 +306,9 @@ function createSignUpModal() {
     const signUpModal = document.createElement('div');
     signUpModal.classList.add('modal-content');
     signUpModal.classList.add('sign-up-form');
+    signUpModal.style.position = 'absolute';
+    signUpModal.style.zIndex = '1000';
+    signUpModal.style.right = '0px';
     signUpModal.id = 'signUpModal';
     document.getElementById('root').appendChild(signUpModal);
 
@@ -408,7 +438,7 @@ function createPostHTML() {
     heading.classList.add('alt-text');
     heading.dataset.idTitle = "";
     postContent.appendChild(heading);
-    heading.textContent = ('Big tiddy goth gf');
+    heading.textContent = ('quality esl big tiddy gf :3');
     // author of the post
     const author = document.createElement('p');
     author.classList.add('post-author');
