@@ -53,7 +53,7 @@ function initApp(apiUrl) {
                 if (response.status === 200) {
                     console.log('true');
                     alert('Successful Sign-Up!')
-                        //signUpModal.reset();
+                    signUpForm.reset();
                     signUpModal.style.display = "none";
                 } else {
                     console.log('false');
@@ -100,8 +100,8 @@ function initApp(apiUrl) {
                 console.log(response);
                 if (response.status === 200) {
                     console.log('true');
-                    alert('Successful Sign-In!')
-                        //loginModal.reset();
+                    alert('Successful Sign-In!');
+                    loginForm.reset();
                     loginModal.style.display = 'none';
                 } else {
                     console.log('false');
@@ -438,7 +438,7 @@ function createPostHTML() {
     heading.classList.add('alt-text');
     heading.dataset.idTitle = "";
     postContent.appendChild(heading);
-    heading.textContent = ('quality esl big tiddy gf :3');
+    heading.textContent = ('hmm');
     // author of the post
     const author = document.createElement('p');
     author.classList.add('post-author');
