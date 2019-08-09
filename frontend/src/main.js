@@ -4,6 +4,8 @@
  * Updated 2019.
  */
 
+// ASSIGNMENT 2 BY ROYCE HUANG (z5258844)
+
 // import your own scripts here.
 // your app must take an apiUrl as an argument --
 // this will allow us to verify your apps behaviour with 
@@ -126,9 +128,8 @@ function logoutFunctionality() {
 
 // basic functionality when the log in button is pressed
 function loginBasic() {
-    //const navItems = document.getElementsByClassName("nav-item");
     const loginButton = document.getElementById('loginButton');
-    console.log("log in button is " + loginButton);
+    //console.log("log in button is " + loginButton);
 
     // function that creates a login modal, with html and css
 
@@ -152,16 +153,7 @@ function loginBasic() {
                 loginModal.style.display = "none";
             }
         }; */
-        //alert("You pressed the login!");
     };
-};
-
-function validateForm() {
-    let formData = document.forms["myForm"]["fname"].value;
-    if (formData === "") {
-        alert("Name must be filled out");
-        return false;
-    }
 };
 
 // a function that creates the login modal
@@ -185,9 +177,7 @@ function createLoginModal() {
     loginModal.appendChild(loginForm);
     loginForm.style.textAlign = "center";
     loginForm.classList.add('modal-body');
-    //loginForm.onsubmit = validateForm();
 
-    //loginForm.classList.add('modal-content');
     // creates the username form
     const userName = document.createElement('input');
     userName.id = ('username');
@@ -263,48 +253,17 @@ function loginAuth(apiUrl) {
                     alert('Sign-In Failed, Error');
                 }
             })
-            /*
-            .then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    console.log('true');
-                    alert('Successful Sign-In!')
-                    loginForm.reset();
-                    loginModal.style.display = 'none';
-
-                } else {
-                    console.log('false');
-                    alert('Sign-In Failed, Error Code: ' + response.status);
-                }
-            }) */
-
-
     }
 };
 
-/*
-function checkMatching() {
-    if (document.getElementById('password').value ==
-        document.getElementById('confirmPassword').value) {
-        document.getElementById('pwMSG').style.color = 'green';
-        document.getElementById('pwMSG').textContent = ('matching');
-    } else {
-        document.getElementById('pwMSG').style.color = 'red';
-        document.getElementById('pwMSG').textContent = ('not matching');
-    }
-}; */
-
 function signUpBasic() {
-    //const navItems = document.getElementsByClassName("nav-item");
     const signUpButton = document.getElementById('signUpButton');
     //console.log("sign up button is " + signUpButton);
-
 
     const signUpModal = document.getElementById('signUpModal');
     //console.log(signUpModal);
     signUpButton.onclick = function() {
         //alert("You pressed the signup!");
-
         if (signUpModal.style.display === "block") {
             signUpModal.style.display = "none";
         } else {
@@ -363,19 +322,6 @@ function createSignUpModal() {
     password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
     password.style.width = "80%";
-    //password.onkeyup = checkMatching();
-    // creates the confirm password form
-    /*
-    const confirmPassword = document.createElement('input');
-    confirmPassword.setAttribute('type', "password");
-    confirmPassword.id = 'confirmPassword';
-    confirmPassword.setAttribute('placeholder', "Confirm Password");
-    confirmPassword.setAttribute('name', "confirmPassword");
-    confirmPassword.style.width = "80%"; */
-    //const matchingMSG = document.createElement('span');
-    //matchingMSG.id = 'message';
-    //confirmPassword.appendChild(matchingMSG);
-    //confirmPassword.onkeyup = checkMatching();
     // creates a submit button
     const submitButton = document.createElement('input');
     submitButton.setAttribute('type', "submit");
@@ -387,7 +333,6 @@ function createSignUpModal() {
     signUpForm.appendChild(name);
     signUpForm.appendChild(email);
     signUpForm.appendChild(password);
-    //signUpForm.appendChild(confirmPassword);
     signUpForm.appendChild(submitButton);
 };
 
@@ -423,9 +368,6 @@ function signUpAuth(apiUrl) {
         }
 
         fetch(`${apiUrl}/auth/signup`, options)
-            /*
-                .then(response => response.json())
-                .then(response => console.log(response)) */
             .then(response => {
                 console.log(response);
                 if (response.status === 200) {
@@ -455,14 +397,14 @@ function createMain() {
     const header = document.createElement('div');
     header.classList.add('feed-header');
     postList.appendChild(header);
-    // h3
+    // h3 that tells you whether its user feed or public feed
     const headerText = document.createElement('h3');
     headerText.id = "headerText";
     headerText.classList.add('feed-title');
     headerText.classList.add('alt-text');
     headerText.textContent = ('Popular Posts on Seddit');
     header.appendChild(headerText);
-    // button
+    // post button
     const postButton = document.createElement('button');
     postButton.classList.add('button');
     postButton.classList.add('button-secondary');
