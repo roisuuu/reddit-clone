@@ -93,21 +93,35 @@ function initApp(apiUrl) {
         }
 
         fetch(`${apiUrl}/auth/login`, options)
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+                if (response.token != undefined) {
+                    console.log('true');
+                    alert('Successful Sign-In!')
+                    loginForm.reset();
+                    loginModal.style.display = 'none';
+                    sessionStorage.setItem("loginToken", response.token);
+                    console.log("my token is " + sessionStorage.getItem("loginToken"));
+                } else {
+                    console.log('false');
+                    alert('Sign-In Failed, Error');
+                }
+            })
             /*
-                .then(response => response.json())
-                .then(response => console.log(response)) */
             .then(response => {
                 console.log(response);
                 if (response.status === 200) {
                     console.log('true');
-                    alert('Successful Sign-In!');
+                    alert('Successful Sign-In!')
                     loginForm.reset();
                     loginModal.style.display = 'none';
+
                 } else {
                     console.log('false');
                     alert('Sign-In Failed, Error Code: ' + response.status);
                 }
-            })
+            }) */
 
 
     }
@@ -124,7 +138,7 @@ function initialiseBannerElements() {
     // adds stupid logo
     const sedditLogo = document.createElement('h1');
     sedditLogo.id = 'logo';
-    sedditLogo.innerText = ('Reddit');
+    sedditLogo.textContent = ('Seddit');
     sedditLogo.classList.add('flex-center');
     banner.appendChild(sedditLogo);
 
@@ -140,7 +154,7 @@ function initialiseBannerElements() {
 
     const searchBar = document.createElement('input');
     searchBar.id = 'search';
-    searchBar.dataset.search = "";
+    searchBar.dataset.idSearch = "";
     searchBar.setAttribute('type', "search");
     searchBar.setAttribute('placeholder', 'Search Seddit');
     searchBarList.appendChild(searchBar);
@@ -411,6 +425,9 @@ function createMain() {
 
 function fetchPost() {
     createPostHTML();
+    // This should check whether user is logged in or not. 
+    // if not, it gets posts from /post/public
+    // if so, it should get posts from /user/feed
     // loop - for each post create a framework, then populate it with
     // the data!!
     // fetch post data from json
@@ -438,7 +455,7 @@ function createPostHTML() {
     heading.classList.add('alt-text');
     heading.dataset.idTitle = "";
     postContent.appendChild(heading);
-    heading.textContent = ('hmm');
+    heading.textContent = ('quality esl big tiddy gf :3');
     // author of the post
     const author = document.createElement('p');
     author.classList.add('post-author');
