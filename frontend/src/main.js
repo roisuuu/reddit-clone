@@ -12,119 +12,9 @@ function initApp(apiUrl) {
     // your app initialisation goes here
     document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
+    signUpAuth(apiUrl);
+    loginAuth(apiUrl);
     createMain();
-
-    const signUpForm = document.getElementById('signUpForm');
-    const signUpModal = document.getElementById('signUpModal');
-    signUpForm.onsubmit = (e) => {
-        e.preventDefault();
-
-        const username = document.getElementById('newUser').value;
-        //console.log(username);
-        const firstName = document.getElementById('firstName').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('newPassword').value;
-        if ((username || password || email || firstName) === null) {
-            alert('please fill in all fields');
-            return false;
-        };
-
-        let details = {
-            "username": username,
-            "password": password,
-            "email": email,
-            "name": firstName
-        }
-
-        const options = {
-            method: 'POST',
-            body: JSON.stringify(details),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }
-
-        fetch(`${apiUrl}/auth/signup`, options)
-            /*
-                .then(response => response.json())
-                .then(response => console.log(response)) */
-            .then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    console.log('true');
-                    alert('Successful Sign-Up!')
-                    signUpForm.reset();
-                    signUpModal.style.display = "none";
-                } else {
-                    console.log('false');
-                    alert('Sign-Up Failed, Error Code: ' + response.status);
-                }
-            })
-
-    }
-
-    const loginModal = document.getElementById('loginModal');
-    const loginForm = document.getElementById('loginForm');
-    loginForm.onsubmit = (e) => {
-        // e is the button
-        e.preventDefault();
-
-        // get username
-        // get password
-        // convert those to json
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        if (username === null || password === null) {
-            alert('please fill in all fields');
-            return false;
-        };
-
-        let userAndPw = {
-            "username": username,
-            "password": password
-        };
-
-        const options = {
-            method: 'POST',
-            body: JSON.stringify(userAndPw),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }
-
-        fetch(`${apiUrl}/auth/login`, options)
-            .then(response => response.json())
-            .then(response => {
-                console.log(response);
-                if (response.token != undefined) {
-                    console.log('true');
-                    alert('Successful Sign-In!')
-                    loginForm.reset();
-                    loginModal.style.display = 'none';
-                    sessionStorage.setItem("loginToken", response.token);
-                    console.log("my token is " + sessionStorage.getItem("loginToken"));
-                } else {
-                    console.log('false');
-                    alert('Sign-In Failed, Error');
-                }
-            })
-            /*
-            .then(response => {
-                console.log(response);
-                if (response.status === 200) {
-                    console.log('true');
-                    alert('Successful Sign-In!')
-                    loginForm.reset();
-                    loginModal.style.display = 'none';
-
-                } else {
-                    console.log('false');
-                    alert('Sign-In Failed, Error Code: ' + response.status);
-                }
-            }) */
-
-
-    }
 };
 
 // creates all banner elements: logo, login, search, sign up
@@ -171,6 +61,24 @@ function initialiseBannerElements() {
     loginButt.dataset.idLogin = "";
     loginList.appendChild(loginButt);
     loginButt.textContent = ('Login');
+
+    const logoutButt = document.createElement('button');
+    loginButt.id = 'logoutButton';
+    logoutButt.classList.add('button');
+    logoutButt.classList.add('button-primary');
+    loginList.appendChild(logoutButt);
+    logoutButt.textContent = ('Logout');
+    logoutButt.style.display = "none";
+
+    // replace login button with logout button if logged in
+    let token = sessionStorage.getItem("loginToken");
+    if (token != "") {
+        loginButt.style.display = "none";
+        logoutButt.style.display = "block";
+    } else {
+        loginButt.style.display = "block";
+        logoutButt.style.display = "none";
+    }
 
     loginBasic();
     createLoginModal();
@@ -284,6 +192,70 @@ function createLoginModal() {
 
 };
 
+function loginAuth(apiUrl) {
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+    loginForm.onsubmit = (e) => {
+        // e is the button
+        e.preventDefault();
+
+        // get username
+        // get password
+        // convert those to json
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (username === null || password === null) {
+            alert('please fill in all fields');
+            return false;
+        };
+
+        let userAndPw = {
+            "username": username,
+            "password": password
+        };
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(userAndPw),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        fetch(`${apiUrl}/auth/login`, options)
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+                if (response.token != undefined) {
+                    console.log('true');
+                    alert('Successful Sign-In!')
+                    loginForm.reset();
+                    loginModal.style.display = 'none';
+                    sessionStorage.setItem("loginToken", response.token);
+                    console.log("my token is " + sessionStorage.getItem("loginToken"));
+                } else {
+                    console.log('false');
+                    alert('Sign-In Failed, Error');
+                }
+            })
+            /*
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    console.log('true');
+                    alert('Successful Sign-In!')
+                    loginForm.reset();
+                    loginModal.style.display = 'none';
+
+                } else {
+                    console.log('false');
+                    alert('Sign-In Failed, Error Code: ' + response.status);
+                }
+            }) */
+
+
+    }
+};
 
 /*
 function checkMatching() {
@@ -394,6 +366,57 @@ function createSignUpModal() {
     signUpForm.appendChild(submitButton);
 };
 
+function signUpAuth(apiUrl) {
+    const signUpForm = document.getElementById('signUpForm');
+    const signUpModal = document.getElementById('signUpModal');
+    signUpForm.onsubmit = (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('newUser').value;
+        //console.log(username);
+        const firstName = document.getElementById('firstName').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('newPassword').value;
+        if ((username || password || email || firstName) === null) {
+            alert('please fill in all fields');
+            return false;
+        };
+
+        let details = {
+            "username": username,
+            "password": password,
+            "email": email,
+            "name": firstName
+        }
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(details),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        fetch(`${apiUrl}/auth/signup`, options)
+            /*
+                .then(response => response.json())
+                .then(response => console.log(response)) */
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    console.log('true');
+                    alert('Successful Sign-Up!')
+                    signUpForm.reset();
+                    signUpModal.style.display = "none";
+                } else {
+                    console.log('false');
+                    alert('Sign-Up Failed, Error Code: ' + response.status);
+                }
+            })
+
+    }
+};
+
 function createMain() {
     // this is the main section which will house all the posts
     const main = document.createElement('main');
@@ -409,6 +432,7 @@ function createMain() {
     postList.appendChild(header);
     // h3
     const headerText = document.createElement('h3');
+    headerText.id = "headerText";
     headerText.classList.add('feed-title');
     headerText.classList.add('alt-text');
     headerText.textContent = ('Popular Posts on Seddit');
@@ -420,11 +444,23 @@ function createMain() {
     postButton.textContent = ('Post');
     header.appendChild(postButton);
 
-    fetchPost();
+    populateFeed();
 };
 
-function fetchPost() {
-    createPostHTML();
+function populateFeed() {
+    let token = sessionStorage.getItem("loginToken");
+
+    // USER FEED:
+    if (token != "") {
+        document.getElementById("headerText");
+        headerText.textContent = "Popular Posts From Your Feed";
+        // refresh posts on front page to get them from /user/feed
+        tempUserPostHTML();
+    } else { // PUBLIC FEED:
+        // refresh posts on front page to get them from /post/public
+        createPostHTML();
+    }
+
     // This should check whether user is logged in or not. 
     // if not, it gets posts from /post/public
     // if so, it should get posts from /user/feed
@@ -433,7 +469,9 @@ function fetchPost() {
     // fetch post data from json
 };
 
-//function populateFeed()
+function fetchPost() {
+
+};
 
 // function creates the HTML framework for a post.
 function createPostHTML() {
@@ -466,6 +504,48 @@ function createPostHTML() {
     const postInfo = document.createElement('p');
     postInfo.classList.add('alt-text');
     postInfo.textContent = ('s/anime, 2hrs');
+    author.appendChild(postInfo);
+
+    const thumbnailBox = document.createElement('div');
+    thumbnailBox.classList.add('post-thumbnail');
+    const img = document.createElement('img');
+    img.src = "../images/1_q.jpg";
+    thumbnailBox.appendChild(img);
+    post.appendChild(thumbnailBox);
+
+    post.appendChild(postContent);
+}
+
+function tempUserPostHTML() {
+    const post = document.createElement('li');
+    post.classList.add('post');
+    post.dataset.idPost = "";
+    document.getElementById('feed').appendChild(post);
+
+    const voteSection = document.createElement('div');
+    voteSection.classList.add('vote');
+    voteSection.dataset.idUpvotes = "";
+    post.appendChild(voteSection);
+
+    const postContent = document.createElement('div');
+    postContent.classList.add('content');
+    // heading of the post
+    const heading = document.createElement('h4');
+    heading.classList.add('post-title');
+    heading.classList.add('alt-text');
+    heading.dataset.idTitle = "";
+    postContent.appendChild(heading);
+    heading.textContent = ('This is a post from the user feed!');
+    // author of the post
+    const author = document.createElement('p');
+    author.classList.add('post-author');
+    author.dataset.idAuthor = "";
+    postContent.appendChild(author);
+    author.textContent = ('By @XxBigWeeb69xX');
+    // includes which subseddit and time since posted
+    const postInfo = document.createElement('p');
+    postInfo.classList.add('alt-text');
+    postInfo.textContent = ('s/nba, 2hrs');
     author.appendChild(postInfo);
 
     const thumbnailBox = document.createElement('div');
