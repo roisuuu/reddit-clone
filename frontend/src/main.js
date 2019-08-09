@@ -17,7 +17,7 @@ function initApp(apiUrl) {
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
-    createMain();
+    createMain(apiUrl);
 };
 
 // creates all banner elements: logo, login, search, sign up
@@ -384,7 +384,7 @@ function signUpAuth(apiUrl) {
     }
 };
 
-function createMain() {
+function createMain(apiUrl) {
     // this is the main section which will house all the posts
     const main = document.createElement('main');
     document.getElementById('root').appendChild(main);
@@ -411,21 +411,26 @@ function createMain() {
     postButton.textContent = ('Post');
     header.appendChild(postButton);
 
-    populateFeed();
+    populateFeed(apiUrl);
 };
 
-function populateFeed() {
+function populateFeed(apiUrl) {
     let token = sessionStorage.getItem("loginToken");
 
     // USER FEED:
     if (token !== null) {
         headerText.textContent = "Popular Posts From Your Feed";
         // refresh posts on front page to get them from /user/feed
-        tempUserPostHTML();
+        for (var i = 0; i < 20; i++) {
+            tempUserPostHTML();
+        };
+
     } else { // PUBLIC FEED:
         headerText.textContent = "Popular Posts on Seddit";
         // refresh posts on front page to get them from /post/public
-        createPostHTML();
+        fetchPublicPosts(apiUrl);
+
+
     }
 
     // This should check whether user is logged in or not. 
@@ -436,8 +441,26 @@ function populateFeed() {
     // fetch post data from json
 };
 
-function fetchPost() {
+function fetchPublicPosts(apiUrl) {
+    const heading = document.getElementsByClassName('post-title');
 
+    const options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+
+    fetch(`${apiUrl}/post/public`, options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            for (var i = 0; i < 20; i++) {
+                createPostHTML();
+                heading[i].textContent = response.posts[i].title;
+            }
+            console.log(response.posts[0].title);
+        })
 };
 
 // function creates the HTML framework for a post.
@@ -452,12 +475,26 @@ function createPostHTML() {
     voteSection.dataset.idUpvotes = "";
     post.appendChild(voteSection);
 
+    // upvote button
+    const upvoteDiv = document.createElement('div');
+    upvoteDiv.id = 'upvoteDiv';
+    voteSection.appendChild(upvoteDiv);
+    const upvoteButton = document.createElement('button');
+    upvoteButton.id = 'upvoteButton';
+    upvoteButton.classList.add('button');
+    upvoteButton.classList.add('button-primary');
+    upvoteButton.style.width = '70%';
+    upvoteButton.textContent = ("/\\");
+    upvoteButton.style.textAlign = 'center';
+    upvoteDiv.appendChild(upvoteButton);
+
     const postContent = document.createElement('div');
     postContent.classList.add('content');
     // heading of the post
     const heading = document.createElement('h4');
     heading.classList.add('post-title');
     heading.classList.add('alt-text');
+    heading.id = "postHeading";
     heading.dataset.idTitle = "";
     postContent.appendChild(heading);
     heading.textContent = ('quality esl big tiddy gf :3');
