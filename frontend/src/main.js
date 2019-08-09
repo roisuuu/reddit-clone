@@ -14,6 +14,7 @@ function initApp(apiUrl) {
     initialiseBannerElements();
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
+    logoutFunctionality();
     createMain();
 };
 
@@ -47,37 +48,48 @@ function initialiseBannerElements() {
     searchBar.dataset.idSearch = "";
     searchBar.setAttribute('type', "search");
     searchBar.setAttribute('placeholder', 'Search Seddit');
+    searchBar.style.display = "inline";
     searchBarList.appendChild(searchBar);
 
     // adds login button to banner
     const loginList = document.createElement('li');
+    loginList.id = 'loginList';
     loginList.classList.add('nav-item');
     buttonList.appendChild(loginList);
 
     const loginButt = document.createElement('button');
-    loginButt.id = 'loginButton';
+    loginButt.id = "loginButton";
     loginButt.classList.add('button');
     loginButt.classList.add('button-primary');
     loginButt.dataset.idLogin = "";
+    loginButt.style.display = "inline";
     loginList.appendChild(loginButt);
     loginButt.textContent = ('Login');
 
+    // creates a logout button
+    const logoutList = document.createElement('li');
+    logoutList.id = 'logoutList';
+    logoutList.classList.add('nav-item');
+    buttonList.appendChild(logoutList);
+
     const logoutButt = document.createElement('button');
-    loginButt.id = 'logoutButton';
+    logoutButt.id = 'logoutButton';
     logoutButt.classList.add('button');
     logoutButt.classList.add('button-primary');
-    loginList.appendChild(logoutButt);
+    logoutList.appendChild(logoutButt);
     logoutButt.textContent = ('Logout');
     logoutButt.style.display = "none";
 
     // replace login button with logout button if logged in
     let token = sessionStorage.getItem("loginToken");
-    if (token != "") {
+    //console.log(token);
+    if (token !== null) {
         loginButt.style.display = "none";
-        logoutButt.style.display = "block";
+        logoutButt.style.display = "inline";
     } else {
-        loginButt.style.display = "block";
+        loginButt.style.display = "inline";
         logoutButt.style.display = "none";
+        console.log("There's no login token yet");
     }
 
     loginBasic();
@@ -86,13 +98,14 @@ function initialiseBannerElements() {
     // creates sign up button
     const signUpList = document.createElement('li');
     signUpList.classList.add('nav-item');
+    signUpList.id = 'signUpButton';
     buttonList.appendChild(signUpList);
 
     const signUpButt = document.createElement('button');
-    signUpButt.id = 'signUpButton';
     signUpButt.classList.add('button');
     signUpButt.classList.add('button-secondary');
     signUpButt.dataset.idSignup = "";
+    signUpButt.style.display = "inline";
     signUpList.appendChild(signUpButt);
     signUpButt.textContent = ('Sign Up');
 
@@ -100,11 +113,22 @@ function initialiseBannerElements() {
     signUpBasic();
 };
 
+// logs the user out when the logout button is pressed
+function logoutFunctionality() {
+    const logoutButt = document.getElementById("logoutButton");
+    logoutButt.onclick = function() {
+        // remove the login token
+        sessionStorage.removeItem("loginToken");
+        // refresh the page
+        document.location.reload(true);
+    };
+};
+
 // basic functionality when the log in button is pressed
 function loginBasic() {
-    const navItems = document.getElementsByClassName("nav-item");
-    const loginButton = navItems[1];
-    console.log(navItems[1]);
+    //const navItems = document.getElementsByClassName("nav-item");
+    const loginButton = document.getElementById('loginButton');
+    console.log("log in button is " + loginButton);
 
     // function that creates a login modal, with html and css
 
@@ -134,7 +158,7 @@ function loginBasic() {
 
 function validateForm() {
     let formData = document.forms["myForm"]["fname"].value;
-    if (formData == "") {
+    if (formData === "") {
         alert("Name must be filled out");
         return false;
     }
@@ -204,7 +228,7 @@ function loginAuth(apiUrl) {
         // convert those to json
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        if (username === null || password === null) {
+        if ((username || password) === "") {
             alert('please fill in all fields');
             return false;
         };
@@ -233,6 +257,7 @@ function loginAuth(apiUrl) {
                     loginModal.style.display = 'none';
                     sessionStorage.setItem("loginToken", response.token);
                     console.log("my token is " + sessionStorage.getItem("loginToken"));
+                    document.location.reload(true);
                 } else {
                     console.log('false');
                     alert('Sign-In Failed, Error');
@@ -270,13 +295,13 @@ function checkMatching() {
 }; */
 
 function signUpBasic() {
-    const navItems = document.getElementsByClassName("nav-item");
-    const signUpButton = navItems[2];
-    console.log(navItems[2]);
+    //const navItems = document.getElementsByClassName("nav-item");
+    const signUpButton = document.getElementById('signUpButton');
+    //console.log("sign up button is " + signUpButton);
 
 
     const signUpModal = document.getElementById('signUpModal');
-    console.log(signUpModal);
+    //console.log(signUpModal);
     signUpButton.onclick = function() {
         //alert("You pressed the signup!");
 
@@ -373,11 +398,11 @@ function signUpAuth(apiUrl) {
         e.preventDefault();
 
         const username = document.getElementById('newUser').value;
-        //console.log(username);
+        //console.log('username is ' + username + "and this");
         const firstName = document.getElementById('firstName').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('newPassword').value;
-        if ((username || password || email || firstName) === null) {
+        if ((username || password || email || firstName) === "") {
             alert('please fill in all fields');
             return false;
         };
@@ -451,12 +476,12 @@ function populateFeed() {
     let token = sessionStorage.getItem("loginToken");
 
     // USER FEED:
-    if (token != "") {
-        document.getElementById("headerText");
+    if (token !== null) {
         headerText.textContent = "Popular Posts From Your Feed";
         // refresh posts on front page to get them from /user/feed
         tempUserPostHTML();
     } else { // PUBLIC FEED:
+        headerText.textContent = "Popular Posts on Seddit";
         // refresh posts on front page to get them from /post/public
         createPostHTML();
     }
