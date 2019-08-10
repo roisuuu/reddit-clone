@@ -443,6 +443,9 @@ function populateFeed(apiUrl) {
 
 function fetchPublicPosts(apiUrl) {
     const heading = document.getElementsByClassName('post-title');
+    const author = document.getElementsByClassName('post-author');
+    const moreInfo = document.getElementsByClassName('extra-info');
+    //const thumbnail = document.getElementsByClassName('img');
 
     const options = {
         method: 'GET',
@@ -456,15 +459,24 @@ function fetchPublicPosts(apiUrl) {
         .then(response => {
             console.log(response);
             for (var i = 0; i < 20; i++) {
-                createPostHTML();
+                const base64Thumbnail = response.posts[i].thumbnail;
+                createPostHTML(base64Thumbnail);
+                //console.log(author[i].textContent);
+                //console.log(moreInfo[i].textContent);
+                //console.log(thumbnail[i]);
                 heading[i].textContent = response.posts[i].title;
+                author[i].textContent = ('By @' + response.posts[i].meta.author);
+                moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
+                //console.log(i + '|' + base64Thumbnail);
+                //thumbnail[i].src = ('data:image/png;base64,' + base64Thumbnail);
+                //console.log(thumbnail[i].src);
             }
             console.log(response.posts[0].title);
         })
 };
 
 // function creates the HTML framework for a post.
-function createPostHTML() {
+function createPostHTML(thumbnailData) {
     const post = document.createElement('li');
     post.classList.add('post');
     post.dataset.idPost = "";
@@ -506,14 +518,17 @@ function createPostHTML() {
     author.textContent = ('By @XxBigWeeb69xX');
     // includes which subseddit and time since posted
     const postInfo = document.createElement('p');
-    postInfo.classList.add('alt-text');
+    //postInfo.classList.add('alt-text');
+    postInfo.classList.add('extra-info');
     postInfo.textContent = ('s/anime, 2hrs');
-    author.appendChild(postInfo);
+    postInfo.style.fontSize = "10px";
+    postContent.appendChild(postInfo);
 
     const thumbnailBox = document.createElement('div');
     thumbnailBox.classList.add('post-thumbnail');
     const img = document.createElement('img');
-    img.src = "../images/1_q.jpg";
+    //img.src = "../images/1_q.jpg";
+    img.src = 'data:image/png;base64,' + thumbnailData;
     thumbnailBox.appendChild(img);
     post.appendChild(thumbnailBox);
 
