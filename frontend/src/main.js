@@ -526,10 +526,16 @@ function createPostHTML(thumbnailData) {
 
     const thumbnailBox = document.createElement('div');
     thumbnailBox.classList.add('post-thumbnail');
-    const img = document.createElement('img');
-    //img.src = "../images/1_q.jpg";
-    img.src = 'data:image/png;base64,' + thumbnailData;
-    thumbnailBox.appendChild(img);
+    if (thumbnailData === null) {
+        thumbnailBox.style.display = "none";
+    } else {
+        const img = document.createElement('img');
+        // took an image from local storage as a placeholder
+        //img.src = "../images/1_q.jpg";
+        img.src = 'data:image/png;base64,' + thumbnailData;
+        thumbnailBox.appendChild(img);
+    }
+
     post.appendChild(thumbnailBox);
 
     post.appendChild(postContent);
