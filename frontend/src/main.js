@@ -247,6 +247,8 @@ function loginAuth(apiUrl) {
                     loginModal.style.display = 'none';
                     sessionStorage.setItem("loginToken", response.token);
                     console.log("my token is " + sessionStorage.getItem("loginToken"));
+                    // change feed state to private
+                    sessionStorage.setItem("feedState", "private");
                     document.location.reload(true);
                 } else {
                     console.log('false');
@@ -410,23 +412,60 @@ function createMain(apiUrl) {
     postButton.classList.add('button-secondary');
     postButton.textContent = ('Post');
     header.appendChild(postButton);
+    // switch feed button (for logged in state)
+    const switchFeed = document.createElement('button');
+    switchFeed.classList.add('button');
+    switchFeed.id = "switchFeedButton";
+    switchFeed.classList.add('button-primary');
+    switchFeed.textContent = ('Switch Feeds');
+    //switchFeed.style.display = "none";
+    switchFeed.addEventListener("click", function() {
+        switchFeeds(apiUrl);
+    });
+    header.appendChild(switchFeed);
 
     populateFeed(apiUrl);
 };
 
+
+function switchFeeds(apiUrl) {
+    // session storage I'm on the public feed?
+    if (sessionStorage.getItem("loginToken") !== null) {
+        // session storage whichFeed becomes the opp
+        const feedState = sessionStorage.getItem("feedState");
+        if (feedState === "public") {
+            sessionStorage.setItem("feedState", "private");
+        } else {
+            sessionStorage.setItem("feedState", "public");
+        }
+
+        // refresh the page
+        document.location.reload(true);
+    } else {
+        alert('Please Log In, to see your personal feed!');
+    }
+};
+
 function populateFeed(apiUrl) {
     let token = sessionStorage.getItem("loginToken");
+    const feedState = sessionStorage.getItem("feedState");
 
     // USER FEED:
-    if (token !== null) {
+    if (token !== null && feedState === "private") {
         headerText.textContent = "Popular Posts From Your Feed";
+        // set feed state to private
+        sessionStorage.setItem("feedState", "private");
         // refresh posts on front page to get them from /user/feed
+        /*
         for (var i = 0; i < 20; i++) {
             tempUserPostHTML();
-        };
+        }; */
+        fetchUserFeed(apiUrl);
 
     } else { // PUBLIC FEED:
         headerText.textContent = "Popular Posts on Seddit";
+        // set feed state to public
+        sessionStorage.setItem("feedState", "public");
         // refresh posts on front page to get them from /post/public
         fetchPublicPosts(apiUrl);
 
@@ -452,12 +491,13 @@ function fetchPublicPosts(apiUrl) {
         headers: {
             'Content-Type': 'application/json'
         }
-    }
+    };
 
     fetch(`${apiUrl}/post/public`, options)
         .then(response => response.json())
         .then(response => {
             console.log(response);
+            // TODO: Sort posts by date
             for (var i = 0; i < 20; i++) {
                 const base64Thumbnail = response.posts[i].thumbnail;
                 createPostHTML(base64Thumbnail);
@@ -472,6 +512,50 @@ function fetchPublicPosts(apiUrl) {
                 //console.log(thumbnail[i].src);
             }
             console.log(response.posts[0].title);
+        })
+};
+
+// this function will get 10 posts from the user feed
+function fetchUserFeed(apiUrl) {
+
+    // grab post html elements
+    const heading = document.getElementsByClassName('post-title');
+    const author = document.getElementsByClassName('post-author');
+    const moreInfo = document.getElementsByClassName('extra-info')
+    const token = "Token " + sessionStorage.getItem("loginToken");
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        }
+    };
+
+    fetch(`${apiUrl}/user/feed?p=0&n=10`, options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            if (response.posts.length === 0) {
+                alert('Your feed is empty, try following some users first! Or, browse the public feed.');
+                //const switchFeeds = document.getElementById('switchFeedButton');
+                //switchFeeds.style.display = "inline";
+            } else {
+                for (var i = 0; i < 10; i++) {
+                    const base64Thumbnail = response.posts[i].thumbnail;
+                    createPostHTML(base64Thumbnail);
+                    //console.log(author[i].textContent);
+                    //console.log(moreInfo[i].textContent);
+                    //console.log(thumbnail[i]);
+                    heading[i].textContent = response.posts[i].title;
+                    author[i].textContent = ('By @' + response.posts[i].meta.author);
+                    moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
+                    //console.log(i + '|' + base64Thumbnail);
+                    //thumbnail[i].src = ('data:image/png;base64,' + base64Thumbnail);
+                    //console.log(thumbnail[i].src);
+                }
+                console.log(response.posts[0].title);
+            }
         })
 };
 
