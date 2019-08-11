@@ -45,3 +45,8 @@
     font-size: 14px;
     margin: 5px 0;
 }
+
+.comment-count {
+    color: var(--alt-text-color);
+    text-decoration: underline;
+}

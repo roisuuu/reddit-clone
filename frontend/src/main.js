@@ -524,6 +524,7 @@ function fetchPublicPosts(apiUrl) {
     const author = document.getElementsByClassName('post-author');
     const moreInfo = document.getElementsByClassName('extra-info');
     const postText = document.getElementsByClassName('post-text');
+    const commentCount = document.getElementsByClassName('comment-count');
 
     const options = {
         method: 'GET',
@@ -549,6 +550,7 @@ function fetchPublicPosts(apiUrl) {
                 author[i].textContent = ('By @' + response.posts[i].meta.author);
                 // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                 moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
+                commentCount[i].textContent = (response.posts[i].comments.length + " comments");
             }
             console.log(response.posts[0].title);
         })
@@ -562,6 +564,7 @@ function fetchUserFeed(apiUrl) {
     const author = document.getElementsByClassName('post-author');
     const moreInfo = document.getElementsByClassName('extra-info');
     const postText = document.getElementsByClassName('post-text');
+    const commentCount = document.getElementsByClassName('comment-count');
     const token = "Token " + sessionStorage.getItem("loginToken");
 
     const options = {
@@ -594,6 +597,7 @@ function fetchUserFeed(apiUrl) {
                     author[i].textContent = ('By @' + response.posts[i].meta.author);
                     // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                     moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
+                    commentCount[i].textContent = (response.posts[i].comments.length + " comments");
                 }
                 console.log(response.posts[0].title);
             }
@@ -641,8 +645,6 @@ function upvoteModalClose() {
         }
     });
 };
-
-
 
 // function creates the HTML framework for a post.
 function createPostHTML(thumbnailData, upvotes, apiUrl) {
@@ -702,6 +704,12 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     postInfo.textContent = ('s/anime, 2hrs');
     postInfo.style.fontSize = "10px";
     postContent.appendChild(postInfo);
+    // includes number of comments, underlined
+    const commentCount = document.createElement('p');
+    commentCount.classList.add('comment-count');
+    commentCount.textContent = ('420 comments');
+    commentCount.style.fontSize = "10px";
+    postContent.appendChild(commentCount);
 
     const thumbnailBox = document.createElement('div');
     thumbnailBox.classList.add('post-thumbnail');
@@ -718,50 +726,7 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     post.appendChild(thumbnailBox);
 
     post.appendChild(postContent);
-}
-
-/*
-function tempUserPostHTML() {
-    const post = document.createElement('li');
-    post.classList.add('post');
-    post.dataset.idPost = "";
-    document.getElementById('feed').appendChild(post);
-
-    const voteSection = document.createElement('div');
-    voteSection.classList.add('vote');
-    voteSection.dataset.idUpvotes = "";
-    post.appendChild(voteSection);
-
-    const postContent = document.createElement('div');
-    postContent.classList.add('content');
-    // heading of the post
-    const heading = document.createElement('h4');
-    heading.classList.add('post-title');
-    heading.classList.add('alt-text');
-    heading.dataset.idTitle = "";
-    postContent.appendChild(heading);
-    heading.textContent = ('This is a post from the user feed!');
-    // author of the post
-    const author = document.createElement('p');
-    author.classList.add('post-author');
-    author.dataset.idAuthor = "";
-    postContent.appendChild(author);
-    author.textContent = ('By @XxBigWeeb69xX');
-    // includes which subseddit and time since posted
-    const postInfo = document.createElement('p');
-    postInfo.classList.add('alt-text');
-    postInfo.textContent = ('s/nba, 2hrs');
-    author.appendChild(postInfo);
-
-    const thumbnailBox = document.createElement('div');
-    thumbnailBox.classList.add('post-thumbnail');
-    const img = document.createElement('img');
-    img.src = "../images/1_q.jpg";
-    thumbnailBox.appendChild(img);
-    post.appendChild(thumbnailBox);
-
-    post.appendChild(postContent);
-} */
+};
 
 function convertTime(unixTime) {
     // Months
