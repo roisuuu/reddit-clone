@@ -484,7 +484,7 @@ function fetchPublicPosts(apiUrl) {
     const heading = document.getElementsByClassName('post-title');
     const author = document.getElementsByClassName('post-author');
     const moreInfo = document.getElementsByClassName('extra-info');
-    //const thumbnail = document.getElementsByClassName('img');
+    const postText = document.getElementsByClassName('post-text');
 
     const options = {
         method: 'GET',
@@ -500,11 +500,13 @@ function fetchPublicPosts(apiUrl) {
             // TODO: Sort posts by date
             for (var i = 0; i < 20; i++) {
                 const base64Thumbnail = response.posts[i].thumbnail;
-                createPostHTML(base64Thumbnail);
+                const upvotes = response.posts[i].meta.upvotes.length;
+                createPostHTML(base64Thumbnail, upvotes);
                 //console.log(author[i].textContent);
                 //console.log(moreInfo[i].textContent);
                 //console.log(thumbnail[i]);
                 heading[i].textContent = response.posts[i].title;
+                postText[i].textContent = response.posts[i].text;
                 author[i].textContent = ('By @' + response.posts[i].meta.author);
                 moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                 //console.log(i + '|' + base64Thumbnail);
@@ -521,7 +523,8 @@ function fetchUserFeed(apiUrl) {
     // grab post html elements
     const heading = document.getElementsByClassName('post-title');
     const author = document.getElementsByClassName('post-author');
-    const moreInfo = document.getElementsByClassName('extra-info')
+    const moreInfo = document.getElementsByClassName('extra-info');
+    const postText = document.getElementsByClassName('post-text');
     const token = "Token " + sessionStorage.getItem("loginToken");
 
     const options = {
@@ -543,11 +546,14 @@ function fetchUserFeed(apiUrl) {
             } else {
                 for (var i = 0; i < 10; i++) {
                     const base64Thumbnail = response.posts[i].thumbnail;
-                    createPostHTML(base64Thumbnail);
+                    const upvotes = response.posts[i].meta.upvotes.length;
+                    console.log(upvotes);
+                    createPostHTML(base64Thumbnail, upvotes);
                     //console.log(author[i].textContent);
                     //console.log(moreInfo[i].textContent);
                     //console.log(thumbnail[i]);
                     heading[i].textContent = response.posts[i].title;
+                    postText[i].textContent = response.posts[i].text;
                     author[i].textContent = ('By @' + response.posts[i].meta.author);
                     moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                     //console.log(i + '|' + base64Thumbnail);
@@ -560,7 +566,7 @@ function fetchUserFeed(apiUrl) {
 };
 
 // function creates the HTML framework for a post.
-function createPostHTML(thumbnailData) {
+function createPostHTML(thumbnailData, upvotes) {
     const post = document.createElement('li');
     post.classList.add('post');
     post.dataset.idPost = "";
@@ -579,8 +585,8 @@ function createPostHTML(thumbnailData) {
     upvoteButton.id = 'upvoteButton';
     upvoteButton.classList.add('button');
     upvoteButton.classList.add('button-primary');
-    upvoteButton.style.width = '70%';
-    upvoteButton.textContent = ("/\\");
+    upvoteButton.style.width = '100%';
+    upvoteButton.textContent = ("/\\ " + upvotes);
     upvoteButton.style.textAlign = 'center';
     upvoteDiv.appendChild(upvoteButton);
 
@@ -594,6 +600,13 @@ function createPostHTML(thumbnailData) {
     heading.dataset.idTitle = "";
     postContent.appendChild(heading);
     heading.textContent = ('quality esl big tiddy gf :3');
+    // post text content
+    const postText = document.createElement('p');
+    postText.id = "postText";
+    postText.classList.add('alt-text');
+    postText.classList.add('post-text');
+    postContent.appendChild(postText);
+    postText.textContent = "Sometimes it really be like that";
     // author of the post
     const author = document.createElement('p');
     author.classList.add('post-author');
