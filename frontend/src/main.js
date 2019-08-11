@@ -14,6 +14,7 @@ function initApp(apiUrl) {
     // your app initialisation goes here
     document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
+    createUpvoteModal();
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
@@ -94,7 +95,7 @@ function initialiseBannerElements() {
         console.log("There's no login token yet");
     }
 
-    loginBasic();
+    //loginBasic();
     createLoginModal();
 
     // creates sign up button
@@ -112,7 +113,7 @@ function initialiseBannerElements() {
     signUpButt.textContent = ('Sign Up');
 
     createSignUpModal();
-    signUpBasic();
+    //signUpBasic();
 };
 
 // logs the user out when the logout button is pressed
@@ -126,6 +127,7 @@ function logoutFunctionality() {
     };
 };
 
+/*
 // basic functionality when the log in button is pressed
 function loginBasic() {
     const loginButton = document.getElementById('loginButton');
@@ -143,38 +145,50 @@ function loginBasic() {
         } else {
             loginModal.style.display = "block";
         }
-
-        // failed function to close modal when clicking outside it
-        /*
-        window.onclick = function(event) {
-            console.log("im out here");
-            if (event.target == loginModal) {
-                console.log("tryna make a change");
-                loginModal.style.display = "none";
-            }
-        }; */
     };
+}; */
+
+function showLogin() {
+    const loginButton = document.getElementById('loginButton');
+    loginButton.addEventListener("click", function() {
+        const loginModal = document.getElementById('loginModal');
+        loginModal.style.display = "block";
+    })
+};
+
+function loginModalClose() {
+    // When the user clicks anywhere outside of the modal, close it
+    const loginModal = document.getElementById('loginModal');
+    window.addEventListener("click", function(event) {
+        if (event.target == loginModal) {
+            loginModal.style.display = "none";
+        }
+    });
 };
 
 // a function that creates the login modal
 function createLoginModal() {
     const loginModal = document.createElement('div');
-    loginModal.style.position = 'absolute';
-    loginModal.style.zIndex = '1000';
-    loginModal.classList.add('modal-content');
+    //loginModal.style.position = 'absolute';
+    //loginModal.style.zIndex = '1000';
+    loginModal.classList.add('modal');
     loginModal.classList.add('login-form');
     loginModal.id = 'loginModal';
     document.getElementById('root').appendChild(loginModal);
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    loginModal.appendChild(modalContent);
 
     const title = document.createElement('h1');
     title.classList.add('login-header');
     title.id = 'loginTitle';
     title.textContent = ('Login');
-    loginModal.appendChild(title);
+    modalContent.appendChild(title);
 
     const loginForm = document.createElement('form');
     loginForm.id = 'loginForm';
-    loginModal.appendChild(loginForm);
+    modalContent.appendChild(loginForm);
     loginForm.style.textAlign = "center";
     loginForm.classList.add('modal-body');
 
@@ -203,6 +217,10 @@ function createLoginModal() {
     loginForm.appendChild(password);
     loginForm.appendChild(submitButton);
 
+    // event listener for button click
+    showLogin();
+    // event listener for modal window to close
+    loginModalClose();
 
 };
 
@@ -257,7 +275,7 @@ function loginAuth(apiUrl) {
             })
     }
 };
-
+/*
 function signUpBasic() {
     const signUpButton = document.getElementById('signUpButton');
     //console.log("sign up button is " + signUpButton);
@@ -272,27 +290,49 @@ function signUpBasic() {
             signUpModal.style.display = "block";
         }
     };
+}; */
+
+function showSignUp() {
+    const signUpButton = document.getElementById('signUpButton');
+    signUpButton.addEventListener("click", function() {
+        const signUpModal = document.getElementById('signUpModal');
+        signUpModal.style.display = "block";
+    })
+};
+
+function signUpModalClose() {
+    // When the user clicks anywhere outside of the modal, close it
+    const signUpModal = document.getElementById('signUpModal');
+    window.addEventListener("click", function(event) {
+        if (event.target == signUpModal) {
+            signUpModal.style.display = "none";
+        }
+    });
 };
 
 function createSignUpModal() {
     const signUpModal = document.createElement('div');
-    signUpModal.classList.add('modal-content');
+    signUpModal.classList.add('modal');
     signUpModal.classList.add('sign-up-form');
-    signUpModal.style.position = 'absolute';
-    signUpModal.style.zIndex = '1000';
-    signUpModal.style.right = '0px';
+    //signUpModal.style.position = 'absolute';
+    //signUpModal.style.zIndex = '1000';
+    //signUpModal.style.right = '0px';
     signUpModal.id = 'signUpModal';
     document.getElementById('root').appendChild(signUpModal);
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    signUpModal.appendChild(modalContent);
 
     const title = document.createElement('h1');
     title.classList.add('sign-up-header');
     title.id = 'signUpTitle';
     title.textContent = ('Sign Up');
-    signUpModal.appendChild(title);
+    modalContent.appendChild(title);
 
     const signUpForm = document.createElement('form');
     signUpForm.id = 'signUpForm';
-    signUpModal.appendChild(signUpForm);
+    modalContent.appendChild(signUpForm);
     signUpForm.style.textAlign = "center";
     //signUpForm.onsubmit = validateForm();
 
@@ -336,6 +376,11 @@ function createSignUpModal() {
     signUpForm.appendChild(email);
     signUpForm.appendChild(password);
     signUpForm.appendChild(submitButton);
+
+    // event listener for button click
+    showSignUp();
+    // event listener for modal window to close
+    signUpModalClose();
 };
 
 function signUpAuth(apiUrl) {
@@ -420,7 +465,7 @@ function createMain(apiUrl) {
     switchFeed.textContent = ('Switch Feeds');
     //switchFeed.style.display = "none";
     switchFeed.addEventListener("click", function() {
-        switchFeeds(apiUrl);
+        switchFeeds();
     });
     header.appendChild(switchFeed);
 
@@ -428,7 +473,7 @@ function createMain(apiUrl) {
 };
 
 
-function switchFeeds(apiUrl) {
+function switchFeeds() {
     // session storage I'm on the public feed?
     if (sessionStorage.getItem("loginToken") !== null) {
         // session storage whichFeed becomes the opp
@@ -456,10 +501,6 @@ function populateFeed(apiUrl) {
         // set feed state to private
         sessionStorage.setItem("feedState", "private");
         // refresh posts on front page to get them from /user/feed
-        /*
-        for (var i = 0; i < 20; i++) {
-            tempUserPostHTML();
-        }; */
         fetchUserFeed(apiUrl);
 
     } else { // PUBLIC FEED:
@@ -468,8 +509,6 @@ function populateFeed(apiUrl) {
         sessionStorage.setItem("feedState", "public");
         // refresh posts on front page to get them from /post/public
         fetchPublicPosts(apiUrl);
-
-
     }
 
     // This should check whether user is logged in or not. 
@@ -501,17 +540,15 @@ function fetchPublicPosts(apiUrl) {
             for (var i = 0; i < 20; i++) {
                 const base64Thumbnail = response.posts[i].thumbnail;
                 const upvotes = response.posts[i].meta.upvotes.length;
-                createPostHTML(base64Thumbnail, upvotes);
-                //console.log(author[i].textContent);
-                //console.log(moreInfo[i].textContent);
-                //console.log(thumbnail[i]);
+                const time = convertTime(response.posts[i].meta.published);
+                createPostHTML(base64Thumbnail, upvotes, apiUrl);
+
+                // plugging the API info into the text spaces 
                 heading[i].textContent = response.posts[i].title;
                 postText[i].textContent = response.posts[i].text;
                 author[i].textContent = ('By @' + response.posts[i].meta.author);
-                moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
-                //console.log(i + '|' + base64Thumbnail);
-                //thumbnail[i].src = ('data:image/png;base64,' + base64Thumbnail);
-                //console.log(thumbnail[i].src);
+                // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
+                moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
             }
             console.log(response.posts[0].title);
         })
@@ -547,26 +584,68 @@ function fetchUserFeed(apiUrl) {
                 for (var i = 0; i < 10; i++) {
                     const base64Thumbnail = response.posts[i].thumbnail;
                     const upvotes = response.posts[i].meta.upvotes.length;
+                    const time = convertTime(response.posts[i].meta.published);
                     console.log(upvotes);
-                    createPostHTML(base64Thumbnail, upvotes);
-                    //console.log(author[i].textContent);
-                    //console.log(moreInfo[i].textContent);
-                    //console.log(thumbnail[i]);
+                    createPostHTML(base64Thumbnail, upvotes, apiUrl);
+
+                    // taking the text content from the API and pluggin it into the post
                     heading[i].textContent = response.posts[i].title;
                     postText[i].textContent = response.posts[i].text;
                     author[i].textContent = ('By @' + response.posts[i].meta.author);
-                    moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
-                    //console.log(i + '|' + base64Thumbnail);
-                    //thumbnail[i].src = ('data:image/png;base64,' + base64Thumbnail);
-                    //console.log(thumbnail[i].src);
+                    // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
+                    moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                 }
                 console.log(response.posts[0].title);
             }
         })
 };
 
+function createUpvoteModal() {
+    const modal = document.createElement('div');
+    document.getElementById('root').appendChild(modal);
+    modal.id = "upvoteModal";
+    modal.classList.add('modal');
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    modal.appendChild(modalContent);
+
+    const title = document.createElement('h1');
+    title.classList.add('login-header');
+    title.textContent = ('Upvotes');
+    modalContent.appendChild(title);
+
+    const body = document.createElement('div');
+    // fetch names from api
+    // can identify them from id of post?
+    modalContent.appendChild(body);
+
+    upvoteModalClose();
+};
+
+function showUpvotes(apiUrl) {
+    console.log('button pressed!');
+    console.log(apiUrl);
+    const upvoteModal = document.getElementById('upvoteModal');
+
+    upvoteModal.style.display = "block";
+
+};
+
+function upvoteModalClose() {
+    // When the user clicks anywhere outside of the modal, close it
+    const upvoteModal = document.getElementById('upvoteModal');
+    window.addEventListener("click", function(event) {
+        if (event.target == upvoteModal) {
+            upvoteModal.style.display = "none";
+        }
+    });
+};
+
+
+
 // function creates the HTML framework for a post.
-function createPostHTML(thumbnailData, upvotes) {
+function createPostHTML(thumbnailData, upvotes, apiUrl) {
     const post = document.createElement('li');
     post.classList.add('post');
     post.dataset.idPost = "";
@@ -588,6 +667,9 @@ function createPostHTML(thumbnailData, upvotes) {
     upvoteButton.style.width = '100%';
     upvoteButton.textContent = ("/\\ " + upvotes);
     upvoteButton.style.textAlign = 'center';
+    upvoteButton.addEventListener("click", function() {
+        showUpvotes(apiUrl);
+    })
     upvoteDiv.appendChild(upvoteButton);
 
     const postContent = document.createElement('div');
@@ -638,6 +720,7 @@ function createPostHTML(thumbnailData, upvotes) {
     post.appendChild(postContent);
 }
 
+/*
 function tempUserPostHTML() {
     const post = document.createElement('li');
     post.classList.add('post');
@@ -678,6 +761,37 @@ function tempUserPostHTML() {
     post.appendChild(thumbnailBox);
 
     post.appendChild(postContent);
-}
+} */
+
+function convertTime(unixTime) {
+    // Months
+    const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Convert unix time to milliseconds
+    const date = new Date(unixTime * 1000);
+
+    // Year
+    const year = date.getFullYear();
+
+    // Month
+    const month = monthsArray[date.getMonth()];
+
+    // Day
+    const day = date.getDate();
+
+    // Hours
+    const hours = date.getHours();
+
+    // Minutes
+    const minutes = "0" + date.getMinutes();
+
+    // Seconds
+    const seconds = "0" + date.getSeconds();
+
+    // Display date time in MM-dd-yyyy h:m:s format
+    const convertedTime = month + '-' + day + '-' + year + ' ' + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+    return convertedTime;
+};
 
 export default initApp;
