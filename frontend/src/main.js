@@ -198,6 +198,7 @@ function createLoginModal() {
     userName.setAttribute('type', "text");
     userName.setAttribute('placeholder', "Username")
     userName.setAttribute('name', "username");
+    userName.classList.add('form-field');
     userName.style.width = "80%";
     // creates the password form
     const password = document.createElement('input');
@@ -205,11 +206,13 @@ function createLoginModal() {
     password.setAttribute('type', "password");
     password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
+    password.classList.add('form-field');
     password.style.width = "80%";
     // creates a submit button
     const submitButton = document.createElement('input');
     submitButton.setAttribute('type', "submit");
     submitButton.setAttribute('value', "Submit");
+    submitButton.classList.add('form-field');
     submitButton.style.width = "80%";
 
     // appends all of the forms to the loginForm element
@@ -343,6 +346,7 @@ function createSignUpModal() {
     userName.setAttribute('name', "username");
     userName.id = 'newUser';
     userName.style.width = "80%";
+    userName.classList.add('form-field');
     // creates the name form
     const name = document.createElement('input');
     name.setAttribute('type', "text");
@@ -350,6 +354,7 @@ function createSignUpModal() {
     name.setAttribute('name', "name");
     name.id = 'firstName'
     name.style.width = "80%";
+    name.classList.add('form-field');
     // creates the email form
     const email = document.createElement('input');
     email.setAttribute('type', "text");
@@ -357,6 +362,7 @@ function createSignUpModal() {
     email.setAttribute('name', "email");
     email.id = 'email';
     email.style.width = "80%";
+    email.classList.add('form-field');
     // creates the password form
     const password = document.createElement('input');
     password.id = 'newPassword';
@@ -364,11 +370,13 @@ function createSignUpModal() {
     password.setAttribute('placeholder', "Password");
     password.setAttribute('name', "password");
     password.style.width = "80%";
+    password.classList.add('form-field');
     // creates a submit button
     const submitButton = document.createElement('input');
     submitButton.setAttribute('type', "submit");
     submitButton.setAttribute('value', "Submit");
     submitButton.style.width = "80%";
+    submitButton.classList.add('form-field');
 
     // appends all of the forms to the loginForm element
     signUpForm.appendChild(userName);

@@ -164,30 +164,14 @@ footer>* {
 }
 
 
-/* Modal Content */
-
-.modal-content {
-    position: relative;
-    background-color: #fefefe;
-    margin: auto;
-    padding: 0;
-    border: 1px solid #888;
-    max-height: 80%;
-    width: 40%;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-
 /* NEW MODAL DESIGN */
 
 
-/* The Modal (background) */
+/* The Grey Background */
 
 .modal {
     display: none;
-    /* Hidden by default */
     position: fixed;
-    /* Stay in place */
     z-index: 1;
     /* Sit on top */
     left: 0;
@@ -206,13 +190,18 @@ footer>* {
 }
 
 
-/* Modal Content/Box */
+/* Modal Content */
 
 .modal-content {
     background-color: #fefefe;
+    /* background-color: var(--reddit-grey); */
     margin: 5px auto;
     /* 15% from the top and centered */
     border: 1px solid #888;
     width: 50%;
     /* Could be more or less, depending on screen size */
+}
+
+.form-field {
+    margin: 4px 6px;
 }
