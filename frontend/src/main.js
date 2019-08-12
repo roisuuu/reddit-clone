@@ -586,18 +586,23 @@ function createUpvoteModal() {
     title.textContent = ('Upvotes');
     modalContent.appendChild(title);
 
+    // where the users who upvotes a post will appear
     const body = document.createElement('div');
-
+    body.id = "upvoteModalBody";
     modalContent.appendChild(body);
+    const userList = document.createElement('ul');
+    userList.id = "upvoteList";
+    body.appendChild(userList);
 
     upvoteModalClose();
 };
 
-// this function needs to be fed which upvote modal I wanna open!
+// TODO: Loading Screen?
 function showUpvotes(apiUrl, response, index) {
-    console.log('button pressed!');
-    console.log(apiUrl);
+    //console.log('button pressed!');
+    //console.log(apiUrl);
     const upvoteModal = document.getElementById('upvoteModal');
+    const modalList = document.getElementById('upvoteList');
 
     // edit the modal to fetch user ids
     // loop through upvotes array in the post
@@ -605,9 +610,31 @@ function showUpvotes(apiUrl, response, index) {
 
     for (let i = 0; i < response.posts[index].meta.upvotes.length; i++) {
         let userID = response.posts[index].meta.upvotes[i];
-        fetchUpvotes(apiUrl, userID);
-    }
+        // the following fetches user info based on the userID provided from
+        // the response. 
+        // TODO: Alert the user to log in if fetch fails
+        const token = "Token " + sessionStorage.getItem("loginToken");
 
+        const options = {
+            method: 'GET',
+            headers: {
+                'Authorization': token
+            }
+        };
+
+        fetch((`${apiUrl}/user?id=` + userID), options)
+            .then(response => response.json())
+            .then(response => {
+                //console.log(response);
+                var username = response.username;
+                // EDIT THE HTML IN HERE!
+                // add a div in the modal content
+                let user = document.createElement('li');
+                user.textContent = username;
+                modalList.appendChild(user);
+                //console.log('username is ' + username);
+            })
+    }
     // fetch names from api response
     // create an unordered list
     // can identify them from id of post?
@@ -617,21 +644,33 @@ function showUpvotes(apiUrl, response, index) {
 
 function upvoteModalClose() {
     // When the user clicks anywhere outside of the modal, close it
+    // will also delete all children of the upvotes list
     const upvoteModal = document.getElementById('upvoteModal');
+    const modalList = document.getElementById('upvoteList');
     window.addEventListener("click", function(event) {
         if (event.target == upvoteModal) {
+            while (modalList.firstChild) {
+                modalList.removeChild(modalList.firstChild);
+            }
             upvoteModal.style.display = "none";
         }
     });
 };
 
+// this function is called from function showUpvotes.
+// It fetches user information based on the userID provided from the
+// feed response.
+// TODO: Alert the user to log in if fetch fails
+// Apparently can't reutrn stuff from fetch so I had to move this into 
+// showUpvotes :(
+/*
 function fetchUpvotes(apiUrl, userID) {
     const token = "Token " + sessionStorage.getItem("loginToken");
 
     const options = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
+            //'Content-Type': 'application/json',
             'Authorization': token
         }
     };
@@ -640,8 +679,11 @@ function fetchUpvotes(apiUrl, userID) {
         .then(response => response.json())
         .then(response => {
             console.log(response);
+            // console.log(response.username + ' is their username!');
+            // storing the username as a reference in sessionStorage
+            sessionStorage.setItem("username", response.username);
         })
-}
+} */
 
 // function creates the HTML framework for a post.
 function createPostHTML(thumbnailData, upvotes, apiUrl, response) {
