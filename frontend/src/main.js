@@ -14,7 +14,7 @@ function initApp(apiUrl) {
     // your app initialisation goes here
     document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
-    // createUpvoteModal();
+    createUpvoteModal();
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
@@ -502,7 +502,8 @@ function fetchPublicPosts(apiUrl) {
                 const base64Thumbnail = response.posts[i].thumbnail;
                 const upvotes = response.posts[i].meta.upvotes.length;
                 const time = convertTime(response.posts[i].meta.published);
-                createPostHTML(base64Thumbnail, upvotes, apiUrl);
+                const postID = response.posts[i].id;
+                createPostHTML(base64Thumbnail, upvotes, apiUrl, response);
 
                 // plugging the API info into the text spaces 
                 heading[i].textContent = response.posts[i].title;
@@ -511,9 +512,6 @@ function fetchPublicPosts(apiUrl) {
                 // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                 moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                 commentCount[i].textContent = (response.posts[i].comments.length + " comments");
-
-                // create the upvote modal for each post!
-                createUpvoteModal(apiUrl, response);
             }
             console.log(response.posts[0].title);
         })
@@ -544,15 +542,14 @@ function fetchUserFeed(apiUrl) {
             console.log(response);
             if (response.posts.length === 0) {
                 alert('Your feed is empty, try following some users first! Or, browse the public feed.');
-                //const switchFeeds = document.getElementById('switchFeedButton');
-                //switchFeeds.style.display = "inline";
             } else {
                 for (var i = 0; i < 10; i++) {
                     const base64Thumbnail = response.posts[i].thumbnail;
                     const upvotes = response.posts[i].meta.upvotes.length;
                     const time = convertTime(response.posts[i].meta.published);
+                    const postID = response.posts[i].id;
                     console.log(upvotes);
-                    createPostHTML(base64Thumbnail, upvotes, apiUrl);
+                    createPostHTML(base64Thumbnail, upvotes, apiUrl, response);
 
                     // taking the text content from the API and pluggin it into the post
                     heading[i].textContent = response.posts[i].title;
@@ -569,7 +566,10 @@ function fetchUserFeed(apiUrl) {
 // Should I append all of them to the root, or to each post?
 // What happens to public post modals when I switch to user feed?
 // How will I open em? A key? 
-function createUpvoteModal(apiUrl, response) {
+
+// NEW: This function just creates the html, all the backend integration
+// is handled in function showUpvotes
+function createUpvoteModal() {
     // NEEDS TO SPECIFY A POST TO CHECK.
     const modal = document.createElement('div');
     document.getElementById('root').appendChild(modal);
@@ -587,30 +587,32 @@ function createUpvoteModal(apiUrl, response) {
     modalContent.appendChild(title);
 
     const body = document.createElement('div');
-    // loop through upvotes array in the post
-    // if the user is not logged in, then display a message to log in >:(
-    /*
-    for (let i = 0; i < response.posts[i].meta.upvotes.length; i++) {
-        let userID = response.posts[i].meta.upvotes[i];
-        fetchUpvotes(apiUrl, userID);
-    } */
 
-    // fetch names from api response
-    // create an unordered list
-    // can identify them from id of post?
     modalContent.appendChild(body);
 
     upvoteModalClose();
 };
 
 // this function needs to be fed which upvote modal I wanna open!
-function showUpvotes(apiUrl) {
+function showUpvotes(apiUrl, response, index) {
     console.log('button pressed!');
     console.log(apiUrl);
     const upvoteModal = document.getElementById('upvoteModal');
 
-    upvoteModal.style.display = "block";
+    // edit the modal to fetch user ids
+    // loop through upvotes array in the post
+    // if the user is not logged in, then display a message to log in >:(
 
+    for (let i = 0; i < response.posts[index].meta.upvotes.length; i++) {
+        let userID = response.posts[index].meta.upvotes[i];
+        fetchUpvotes(apiUrl, userID);
+    }
+
+    // fetch names from api response
+    // create an unordered list
+    // can identify them from id of post?
+
+    upvoteModal.style.display = "block";
 };
 
 function upvoteModalClose() {
@@ -642,7 +644,7 @@ function fetchUpvotes(apiUrl, userID) {
 }
 
 // function creates the HTML framework for a post.
-function createPostHTML(thumbnailData, upvotes, apiUrl) {
+function createPostHTML(thumbnailData, upvotes, apiUrl, response) {
     const post = document.createElement('li');
     post.classList.add('post');
     post.dataset.idPost = "";
@@ -670,9 +672,19 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     const upvoteCounter = document.createElement('div');
     upvoteCounter.textContent = upvotes;
     upvoteCounter.classList.add('upvote-count');
+    upvoteCounter.id = ""
     upvoteDiv.appendChild(upvoteCounter);
     upvoteCounter.addEventListener("click", function() {
-        showUpvotes(apiUrl);
+        // scans through all elements with class upvote-count
+        // finds the one that corresponds to the right post
+        // index will then refer to the index of the post in the response.json
+        const countersArray = document.getElementsByClassName('upvote-count');
+        for (let i = 0; i < countersArray.length; i++) {
+            if (countersArray[i] === upvoteCounter) {
+                var index = i;
+            };
+        };
+        showUpvotes(apiUrl, response, index);
     })
 
     const postContent = document.createElement('div');
@@ -700,7 +712,6 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     author.textContent = ('By @XxBigWeeb69xX');
     // includes which subseddit and time since posted
     const postInfo = document.createElement('p');
-    //postInfo.classList.add('alt-text');
     postInfo.classList.add('extra-info');
     postInfo.textContent = ('s/anime, 2hrs');
     postInfo.style.fontSize = "10px";
@@ -719,7 +730,7 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     } else {
         const img = document.createElement('img');
         // took an image from local storage as a placeholder
-        //img.src = "../images/1_q.jpg";
+        // img.src = "../images/1_q.jpg";
         img.src = 'data:image/png;base64,' + thumbnailData;
         thumbnailBox.appendChild(img);
     }
@@ -730,6 +741,8 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
 };
 
 // converts the unix timestamp given from fetching post data into normal time
+// appropriated from https://makitweb.com/convert-unix-timestamp-to-date-time-with-javascript/ by Yogesh Singh
+// on 12-08-2019
 function convertTime(unixTime) {
     // Months
     const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
