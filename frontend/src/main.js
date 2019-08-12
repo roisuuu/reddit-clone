@@ -14,7 +14,7 @@ function initApp(apiUrl) {
     // your app initialisation goes here
     document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
-    createUpvoteModal();
+    // createUpvoteModal();
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
@@ -511,6 +511,9 @@ function fetchPublicPosts(apiUrl) {
                 // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                 moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                 commentCount[i].textContent = (response.posts[i].comments.length + " comments");
+
+                // create the upvote modal for each post!
+                createUpvoteModal(apiUrl, response);
             }
             console.log(response.posts[0].title);
         })
@@ -563,11 +566,16 @@ function fetchUserFeed(apiUrl) {
         })
 };
 
-function createUpvoteModal() {
+// Should I append all of them to the root, or to each post?
+// What happens to public post modals when I switch to user feed?
+// How will I open em? A key? 
+function createUpvoteModal(apiUrl, response) {
+    // NEEDS TO SPECIFY A POST TO CHECK.
     const modal = document.createElement('div');
     document.getElementById('root').appendChild(modal);
     modal.id = "upvoteModal";
     modal.classList.add('modal');
+    modal.classList.add('upvote-modal');
 
     const modalContent = document.createElement('div');
     modalContent.classList.add('modal-content');
@@ -579,13 +587,23 @@ function createUpvoteModal() {
     modalContent.appendChild(title);
 
     const body = document.createElement('div');
-    // fetch names from api
+    // loop through upvotes array in the post
+    // if the user is not logged in, then display a message to log in >:(
+    /*
+    for (let i = 0; i < response.posts[i].meta.upvotes.length; i++) {
+        let userID = response.posts[i].meta.upvotes[i];
+        fetchUpvotes(apiUrl, userID);
+    } */
+
+    // fetch names from api response
+    // create an unordered list
     // can identify them from id of post?
     modalContent.appendChild(body);
 
     upvoteModalClose();
 };
 
+// this function needs to be fed which upvote modal I wanna open!
 function showUpvotes(apiUrl) {
     console.log('button pressed!');
     console.log(apiUrl);
@@ -604,6 +622,24 @@ function upvoteModalClose() {
         }
     });
 };
+
+function fetchUpvotes(apiUrl, userID) {
+    const token = "Token " + sessionStorage.getItem("loginToken");
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        }
+    };
+
+    fetch((`${apiUrl}/user?id=` + userID), options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+        })
+}
 
 // function creates the HTML framework for a post.
 function createPostHTML(thumbnailData, upvotes, apiUrl) {
@@ -626,12 +662,18 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     upvoteButton.classList.add('button');
     upvoteButton.classList.add('button-primary');
     upvoteButton.style.width = '100%';
-    upvoteButton.textContent = ("/\\ " + upvotes);
+    upvoteButton.textContent = ("/\\");
     upvoteButton.style.textAlign = 'center';
-    upvoteButton.addEventListener("click", function() {
+    upvoteDiv.appendChild(upvoteButton);
+
+    // Upvote count div
+    const upvoteCounter = document.createElement('div');
+    upvoteCounter.textContent = upvotes;
+    upvoteCounter.classList.add('upvote-count');
+    upvoteDiv.appendChild(upvoteCounter);
+    upvoteCounter.addEventListener("click", function() {
         showUpvotes(apiUrl);
     })
-    upvoteDiv.appendChild(upvoteButton);
 
     const postContent = document.createElement('div');
     postContent.classList.add('content');
@@ -691,26 +733,14 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
 function convertTime(unixTime) {
     // Months
     const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
     // Convert unix time to milliseconds
     const date = new Date(unixTime * 1000);
 
-    // Year
     const year = date.getFullYear();
-
-    // Month
     const month = monthsArray[date.getMonth()];
-
-    // Day
     const day = date.getDate();
-
-    // Hours
     const hours = date.getHours();
-
-    // Minutes
     const minutes = "0" + date.getMinutes();
-
-    // Seconds
     const seconds = "0" + date.getSeconds();
 
     // Combines all to display time in dd-mm-yy-hh:mm:ss

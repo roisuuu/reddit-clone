@@ -50,3 +50,10 @@
     color: var(--alt-text-color);
     text-decoration: underline;
 }
+
+.upvote-count {
+    padding: 5px;
+    font-size: 12px;
+    color: var(--reddit-blue);
+    text-align: center;
+}
