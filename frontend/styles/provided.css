@@ -205,3 +205,13 @@ footer>* {
 .form-field {
     margin: 4px 6px;
 }
+
+
+/* error message for non-logged in users trying to see who upvoted */
+
+.error-msg {
+    display: none;
+    font-size: 14px;
+    color: var(--reddit-blue);
+    text-align: center;
+}

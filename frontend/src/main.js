@@ -513,7 +513,6 @@ function fetchPublicPosts(apiUrl) {
                 moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                 commentCount[i].textContent = (response.posts[i].comments.length + " comments");
             }
-            console.log(response.posts[0].title);
         })
 };
 
@@ -593,26 +592,48 @@ function createUpvoteModal() {
     const userList = document.createElement('ul');
     userList.id = "upvoteList";
     body.appendChild(userList);
+    // error message if the user hasn't signed in
+    const errorMsg = document.createElement('h2');
+    errorMsg.classList.add('error-msg');
+    errorMsg.id = "upvoteError";
+    errorMsg.textContent = "Uh Oh! Sign-In First to View Users Who Upvoted!";
+    body.appendChild(errorMsg);
+    // error message if there are no upvotes yet
+    const noUpvotesMsg = document.createElement('h2');
+    noUpvotesMsg.classList.add('error-msg');
+    noUpvotesMsg.id = "noUpvotes";
+    noUpvotesMsg.textContent = "Be The First To Upvote This Post!";
+    body.appendChild(noUpvotesMsg);
+
 
     upvoteModalClose();
 };
 
 // TODO: Loading Screen?
 function showUpvotes(apiUrl, response, index) {
-    //console.log('button pressed!');
-    //console.log(apiUrl);
     const upvoteModal = document.getElementById('upvoteModal');
     const modalList = document.getElementById('upvoteList');
 
-    // edit the modal to fetch user ids
-    // loop through upvotes array in the post
+    // edit the modal dynamically while fetching user ids
+    // by looping through upvotes array in the post
     // if the user is not logged in, then display a message to log in >:(
+    upvoteModal.style.display = "block";
+
+    if (sessionStorage.getItem("loginToken") === null) {
+        const errorMsg = document.getElementById('upvoteError');
+        errorMsg.style.display = "block";
+        return;
+    } else if (response.posts[index].meta.upvotes.length === 0) {
+        // no one has upvoted yet, so display a message
+        const noUpvotesMsg = document.getElementById('noUpvotes');
+        noUpvotesMsg.style.display = "block";
+        return;
+    }
 
     for (let i = 0; i < response.posts[index].meta.upvotes.length; i++) {
         let userID = response.posts[index].meta.upvotes[i];
         // the following fetches user info based on the userID provided from
         // the response. 
-        // TODO: Alert the user to log in if fetch fails
         const token = "Token " + sessionStorage.getItem("loginToken");
 
         const options = {
@@ -625,21 +646,14 @@ function showUpvotes(apiUrl, response, index) {
         fetch((`${apiUrl}/user?id=` + userID), options)
             .then(response => response.json())
             .then(response => {
-                //console.log(response);
+                console.log(response);
                 var username = response.username;
-                // EDIT THE HTML IN HERE!
-                // add a div in the modal content
+                // adds a list element in the modal content
                 let user = document.createElement('li');
                 user.textContent = username;
                 modalList.appendChild(user);
-                //console.log('username is ' + username);
             })
     }
-    // fetch names from api response
-    // create an unordered list
-    // can identify them from id of post?
-
-    upvoteModal.style.display = "block";
 };
 
 function upvoteModalClose() {
@@ -652,6 +666,13 @@ function upvoteModalClose() {
             while (modalList.firstChild) {
                 modalList.removeChild(modalList.firstChild);
             }
+
+            const errorMsg = document.getElementById('upvoteError');
+            errorMsg.style.display = "none";
+
+            const noUpvotesMsg = document.getElementById('noUpvotes');
+            noUpvotesMsg.style.display = "none";
+
             upvoteModal.style.display = "none";
         }
     });
