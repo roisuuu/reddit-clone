@@ -15,10 +15,12 @@ function initApp(apiUrl) {
     document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
     createUpvoteModal();
+    createCommentModal();
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
     createMain(apiUrl);
+    getUserID(apiUrl);
 };
 
 // creates all banner elements: logo, login, search, sign up
@@ -119,6 +121,7 @@ function logoutFunctionality() {
     logoutButt.onclick = function() {
         // remove the login token
         sessionStorage.removeItem("loginToken");
+        sessionStorage.removeItem("userID");
         // refresh the page
         document.location.reload(true);
     };
@@ -502,14 +505,12 @@ function fetchPublicPosts(apiUrl) {
                 const base64Thumbnail = response.posts[i].thumbnail;
                 const upvotes = response.posts[i].meta.upvotes.length;
                 const time = convertTime(response.posts[i].meta.published);
-                const postID = response.posts[i].id;
-                createPostHTML(base64Thumbnail, upvotes, apiUrl, response);
+                createPostHTML(base64Thumbnail, upvotes, apiUrl, response, i);
 
                 // plugging the API info into the text spaces 
                 heading[i].textContent = response.posts[i].title;
                 postText[i].textContent = response.posts[i].text;
                 author[i].textContent = ('By @' + response.posts[i].meta.author);
-                // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                 moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                 commentCount[i].textContent = (response.posts[i].comments.length + " comments");
             }
@@ -546,9 +547,8 @@ function fetchUserFeed(apiUrl) {
                     const base64Thumbnail = response.posts[i].thumbnail;
                     const upvotes = response.posts[i].meta.upvotes.length;
                     const time = convertTime(response.posts[i].meta.published);
-                    const postID = response.posts[i].id;
                     console.log(upvotes);
-                    createPostHTML(base64Thumbnail, upvotes, apiUrl, response);
+                    createPostHTML(base64Thumbnail, upvotes, apiUrl, response, i);
 
                     // taking the text content from the API and pluggin it into the post
                     heading[i].textContent = response.posts[i].title;
@@ -562,14 +562,9 @@ function fetchUserFeed(apiUrl) {
         })
 };
 
-// Should I append all of them to the root, or to each post?
-// What happens to public post modals when I switch to user feed?
-// How will I open em? A key? 
-
-// NEW: This function just creates the html, all the backend integration
+// This function just creates the html, all the backend integration
 // is handled in function showUpvotes
 function createUpvoteModal() {
-    // NEEDS TO SPECIFY A POST TO CHECK.
     const modal = document.createElement('div');
     document.getElementById('root').appendChild(modal);
     modal.id = "upvoteModal";
@@ -605,7 +600,7 @@ function createUpvoteModal() {
     noUpvotesMsg.textContent = "Be The First To Upvote This Post!";
     body.appendChild(noUpvotesMsg);
 
-
+    // allows the upvote modal to close when clicked off!
     upvoteModalClose();
 };
 
@@ -707,7 +702,8 @@ function fetchUpvotes(apiUrl, userID) {
 } */
 
 // function creates the HTML framework for a post.
-function createPostHTML(thumbnailData, upvotes, apiUrl, response) {
+function createPostHTML(thumbnailData, upvotes, apiUrl, response, index) {
+    const userID = sessionStorage.getItem("userID");
     const post = document.createElement('li');
     post.classList.add('post');
     post.dataset.idPost = "";
@@ -726,10 +722,29 @@ function createPostHTML(thumbnailData, upvotes, apiUrl, response) {
     upvoteButton.id = 'upvoteButton';
     upvoteButton.classList.add('button');
     upvoteButton.classList.add('button-primary');
+    upvoteButton.classList.add('upvote-button');
     upvoteButton.style.width = '100%';
     upvoteButton.textContent = ("/\\");
     upvoteButton.style.textAlign = 'center';
+    // checks if post has been upvoted by user, if so turn arrow orange
+    for (var i = 0; i < response.posts[index].meta.upvotes.length; i++) {
+        if (response.posts[index].meta.upvotes[i] == userID) {
+            upvoteButton.style.color = '#FF5700';
+        };
+    };
+
     upvoteDiv.appendChild(upvoteButton);
+    upvoteButton.addEventListener("click", function() {
+        // scans through all elements with class upvote-button
+        // finds the one that corresponds to the right post
+        const buttonsArray = document.getElementsByClassName('upvote-button');
+        for (let i = 0; i < buttonsArray.length; i++) {
+            if (buttonsArray[i] === upvoteButton) {
+                var index = i;
+            };
+        };
+        upvotePost(apiUrl, response, index);
+    })
 
     // Upvote count div
     const upvoteCounter = document.createElement('div');
@@ -785,6 +800,18 @@ function createPostHTML(thumbnailData, upvotes, apiUrl, response) {
     commentCount.textContent = ('420 comments');
     commentCount.style.fontSize = "10px";
     postContent.appendChild(commentCount);
+    commentCount.addEventListener("click", function() {
+        // scans through all elements with class comment-count
+        // finds the one that corresponds to the post clicked
+        // index will then refer to the index of the post in the json
+        const commentCountArray = document.getElementsByClassName('comment-count');
+        for (let i = 0; i < commentCountArray.length; i++) {
+            if (commentCountArray[i] === commentCount) {
+                var index = i;
+            };
+        };
+        showComments(response, index);
+    })
 
     const thumbnailBox = document.createElement('div');
     thumbnailBox.classList.add('post-thumbnail');
@@ -801,6 +828,188 @@ function createPostHTML(thumbnailData, upvotes, apiUrl, response) {
     post.appendChild(thumbnailBox);
 
     post.appendChild(postContent);
+};
+
+// either upvotes, or removes an upvote for a post
+function upvotePost(apiUrl, response, index) {
+    const upvoteButton = document.getElementsByClassName('upvote-button');
+    // if not logged in, alert user to log in
+    if (sessionStorage.getItem("loginToken") === null) {
+        alert('Please Log-In to Upvote Posts!');
+        return;
+    };
+
+    // check if post has been upvoted before
+    // loops through all upvotes of a post, if one matches with
+    // userID, then this function removes the upvote.
+    const postID = response.posts[index].id;
+    const userID = sessionStorage.getItem("userID");
+    const token = ('Token ' + sessionStorage.getItem("loginToken"));
+    for (var i = 0; i < response.posts[index].meta.upvotes.length; i++) {
+        if (response.posts[index].meta.upvotes[i] == userID) {
+            // delete upvote
+            const deleteOptions = {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': token
+                }
+            };
+
+            fetch((`${apiUrl}/post/vote?id=` + postID), deleteOptions)
+                .then(response => response.json())
+                .then(response => {
+                    console.log(response);
+                    console.log('upvote removed successfully!');
+                    //upvoteButton[index].style.color = 'black';
+                    upvoteButton[index].style.color = '#0079D3';
+                })
+            return;
+        }
+    };
+
+    // post hasn't been upvoted before
+    // fetch, put /post/vote
+    const upvoteOptions = {
+        method: 'PUT',
+        headers: {
+            'Authorization': token
+        }
+    };
+
+    fetch((`${apiUrl}/post/vote?id=` + postID), upvoteOptions)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            console.log('post upvoted successfully!');
+            upvoteButton[index].style.color = '#FF5700';
+        })
+};
+
+function getUserID(apiUrl) {
+    const token = "Token " + sessionStorage.getItem("loginToken");
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'Authorization': token
+        }
+    };
+
+    fetch((`${apiUrl}/user/`), options)
+        .then(response => response.json())
+        .then(response => {
+            console.log('id response' + response);
+            const userID = response.id;
+            sessionStorage.setItem("userID", userID);
+        })
+};
+
+// shows the comments of a post by grabbing the correct post from the json
+// response, based on the index provided
+function showComments(response, index) {
+    const commentModal = document.getElementById('commentModal');
+    const commentBody = document.getElementById('commentSection');
+
+    commentModal.style.display = "block";
+
+    // If user isn't logged in or no comments are available
+    if (sessionStorage.getItem("loginToken") === null) {
+        const errorMsg = document.getElementById('commentError');
+        errorMsg.style.display = "block";
+        return;
+    } else if (response.posts[index].comments.length === 0) {
+        // no one has commented yet, so display a message
+        const noCommentsMsg = document.getElementById('noComments');
+        noCommentsMsg.style.display = "block";
+        return;
+    }
+
+    for (let i = 0; i < response.posts[index].comments.length; i++) {
+        let username = response.posts[index].comments[i].author;
+        let comment = response.posts[index].comments[i].comment;
+        let timestamp = convertTime(response.posts[index].comments[i].published);
+
+        // Creating the html for a comment
+        const commentDiv = document.createElement('div');
+        commentDiv.classList.add('comment-div');
+        commentBody.appendChild(commentDiv);
+        const usernameText = document.createElement('h3');
+        usernameText.classList.add('username-text');
+        usernameText.textContent = (username + ' says:');
+        commentDiv.appendChild(usernameText);
+        const dateText = document.createElement('p');
+        dateText.textContent = ('Posted ' + timestamp);
+        dateText.classList.add('date-text');
+        commentDiv.appendChild(dateText);
+        const commentContent = document.createElement('p');
+        commentContent.classList.add('comment-text');
+        commentContent.textContent = comment;
+        commentDiv.appendChild(commentContent);
+    }
+};
+
+function createCommentModal() {
+    const modal = document.createElement('div');
+    document.getElementById('root').appendChild(modal);
+    modal.id = "commentModal";
+    modal.classList.add('modal');
+    modal.classList.add('comment-modal');
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    modal.appendChild(modalContent);
+
+    const title = document.createElement('h1');
+    title.classList.add('comment-header');
+    title.textContent = ('Comments');
+    modalContent.appendChild(title);
+
+    // Where each comment will be displayed
+    const body = document.createElement('div');
+    body.id = "commentModalBody";
+    modalContent.appendChild(body);
+
+    const commentSection = document.createElement('div');
+    commentSection.id = "commentSection";
+    body.appendChild(commentSection);
+
+    // error message if the user hasn't signed in
+    const errorMsg = document.createElement('h2');
+    errorMsg.classList.add('error-msg');
+    errorMsg.id = "commentError";
+    errorMsg.textContent = "Uh Oh! Sign-In First to View Comments!";
+    body.appendChild(errorMsg);
+    // error message if there are no comments yet
+    const noCommentsMsg = document.createElement('h2');
+    noCommentsMsg.classList.add('error-msg');
+    noCommentsMsg.id = "noComments";
+    noCommentsMsg.textContent = "Be The First To Comment On This Post!";
+    body.appendChild(noCommentsMsg);
+
+    // allows the comment modal to close when clicked off!
+    commentModalClose();
+};
+
+function commentModalClose() {
+    // When the user clicks anywhere outside of the modal, close it
+    // will also delete all children of the comments list
+    const commentModal = document.getElementById('commentModal');
+    const commentSection = document.getElementById('commentSection');
+    window.addEventListener("click", function(event) {
+        if (event.target == commentModal) {
+            while (commentSection.firstChild) {
+                commentSection.removeChild(commentSection.firstChild);
+            }
+
+            const errorMsg = document.getElementById('commentError');
+            errorMsg.style.display = "none";
+
+            const noCommentsMsg = document.getElementById('noComments');
+            noCommentsMsg.style.display = "none";
+
+            commentModal.style.display = "none";
+        }
+    });
 };
 
 // converts the unix timestamp given from fetching post data into normal time
