@@ -85,7 +85,6 @@ function initialiseBannerElements() {
 
     // replace login button with logout button if logged in
     let token = sessionStorage.getItem("loginToken");
-    //console.log(token);
     if (token !== null) {
         loginButt.style.display = "none";
         logoutButt.style.display = "inline";
@@ -95,7 +94,6 @@ function initialiseBannerElements() {
         console.log("There's no login token yet");
     }
 
-    //loginBasic();
     createLoginModal();
 
     // creates sign up button
@@ -113,7 +111,6 @@ function initialiseBannerElements() {
     signUpButt.textContent = ('Sign Up');
 
     createSignUpModal();
-    //signUpBasic();
 };
 
 // logs the user out when the logout button is pressed
@@ -126,27 +123,6 @@ function logoutFunctionality() {
         document.location.reload(true);
     };
 };
-
-/*
-// basic functionality when the log in button is pressed
-function loginBasic() {
-    const loginButton = document.getElementById('loginButton');
-    //console.log("log in button is " + loginButton);
-
-    // function that creates a login modal, with html and css
-
-    loginButton.onclick = function() {
-        // summon the modal,
-        // exit if login button is clicked again
-        const loginModal = document.getElementById('loginModal')
-
-        if (loginModal.style.display === "block") {
-            loginModal.style.display = "none";
-        } else {
-            loginModal.style.display = "block";
-        }
-    };
-}; */
 
 function showLogin() {
     const loginButton = document.getElementById('loginButton');
@@ -169,8 +145,6 @@ function loginModalClose() {
 // a function that creates the login modal
 function createLoginModal() {
     const loginModal = document.createElement('div');
-    //loginModal.style.position = 'absolute';
-    //loginModal.style.zIndex = '1000';
     loginModal.classList.add('modal');
     loginModal.classList.add('login-form');
     loginModal.id = 'loginModal';
@@ -278,22 +252,6 @@ function loginAuth(apiUrl) {
             })
     }
 };
-/*
-function signUpBasic() {
-    const signUpButton = document.getElementById('signUpButton');
-    //console.log("sign up button is " + signUpButton);
-
-    const signUpModal = document.getElementById('signUpModal');
-    //console.log(signUpModal);
-    signUpButton.onclick = function() {
-        //alert("You pressed the signup!");
-        if (signUpModal.style.display === "block") {
-            signUpModal.style.display = "none";
-        } else {
-            signUpModal.style.display = "block";
-        }
-    };
-}; */
 
 function showSignUp() {
     const signUpButton = document.getElementById('signUpButton');
@@ -317,9 +275,6 @@ function createSignUpModal() {
     const signUpModal = document.createElement('div');
     signUpModal.classList.add('modal');
     signUpModal.classList.add('sign-up-form');
-    //signUpModal.style.position = 'absolute';
-    //signUpModal.style.zIndex = '1000';
-    //signUpModal.style.right = '0px';
     signUpModal.id = 'signUpModal';
     document.getElementById('root').appendChild(signUpModal);
 
@@ -337,7 +292,6 @@ function createSignUpModal() {
     signUpForm.id = 'signUpForm';
     modalContent.appendChild(signUpForm);
     signUpForm.style.textAlign = "center";
-    //signUpForm.onsubmit = validateForm();
 
     // creates the username form
     const userName = document.createElement('input');
@@ -398,7 +352,6 @@ function signUpAuth(apiUrl) {
         e.preventDefault();
 
         const username = document.getElementById('newUser').value;
-        //console.log('username is ' + username + "and this");
         const firstName = document.getElementById('firstName').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('newPassword').value;
@@ -471,7 +424,6 @@ function createMain(apiUrl) {
     switchFeed.id = "switchFeedButton";
     switchFeed.classList.add('button-primary');
     switchFeed.textContent = ('Switch Feeds');
-    //switchFeed.style.display = "none";
     switchFeed.addEventListener("click", function() {
         switchFeeds();
     });
@@ -603,7 +555,6 @@ function fetchUserFeed(apiUrl) {
                     heading[i].textContent = response.posts[i].title;
                     postText[i].textContent = response.posts[i].text;
                     author[i].textContent = ('By @' + response.posts[i].meta.author);
-                    // moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + response.posts[i].meta.published);
                     moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                     commentCount[i].textContent = (response.posts[i].comments.length + " comments");
                 }
@@ -736,6 +687,7 @@ function createPostHTML(thumbnailData, upvotes, apiUrl) {
     post.appendChild(postContent);
 };
 
+// converts the unix timestamp given from fetching post data into normal time
 function convertTime(unixTime) {
     // Months
     const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -761,8 +713,8 @@ function convertTime(unixTime) {
     // Seconds
     const seconds = "0" + date.getSeconds();
 
-    // Display date time in MM-dd-yyyy h:m:s format
-    const convertedTime = month + '-' + day + '-' + year + ' ' + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    // Combines all to display time in dd-mm-yy-hh:mm:ss
+    const convertedTime = day + '-' + month + '-' + year + ' ' + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
     return convertedTime;
 };
