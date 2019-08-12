@@ -19,6 +19,7 @@ function initApp(apiUrl) {
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
+    createProfileModal();
     createMain(apiUrl);
     getUserID(apiUrl);
 };
@@ -85,17 +86,6 @@ function initialiseBannerElements() {
     logoutButt.textContent = ('Logout');
     logoutButt.style.display = "none";
 
-    // replace login button with logout button if logged in
-    let token = sessionStorage.getItem("loginToken");
-    if (token !== null) {
-        loginButt.style.display = "none";
-        logoutButt.style.display = "inline";
-    } else {
-        loginButt.style.display = "inline";
-        logoutButt.style.display = "none";
-        console.log("There's no login token yet");
-    }
-
     createLoginModal();
 
     // creates sign up button
@@ -113,6 +103,86 @@ function initialiseBannerElements() {
     signUpButt.textContent = ('Sign Up');
 
     createSignUpModal();
+
+    // creates view profile button
+    const profileList = document.createElement('li');
+    profileList.classList.add('nav-item');
+    profileList.id = 'profileButton';
+    buttonList.appendChild(profileList);
+
+    const profileButt = document.createElement('button');
+    const username = sessionStorage.getItem("userName");
+    profileButt.classList.add('button');
+    profileButt.classList.add('button-secondary');
+    profileButt.style.display = "inline";
+    profileList.appendChild(profileButt);
+    if (username === 'undefined') {
+        profileButt.textContent = 'profile';
+    } else {
+        profileButt.textContent = username;
+    }
+
+    // replace login button with logout button if logged in
+    // replace signUp button with profile link if logged in
+    let token = sessionStorage.getItem("loginToken");
+    if (token !== null) {
+        loginButt.style.display = "none";
+        signUpButt.style.display = "none";
+        logoutButt.style.display = "inline";
+        profileButt.style.display = "inline";
+    } else {
+        loginButt.style.display = "inline";
+        signUpButt.style.display = "inline";
+        logoutButt.style.display = "none";
+        profileButt.style.display = "none";
+        console.log("There's no login token yet");
+    }
+};
+
+// creates the user profile modal window
+function createProfileModal() {
+    const modal = document.createElement('div');
+    document.getElementById('root').appendChild(modal);
+    modal.id = "profileModal";
+    modal.classList.add('modal');
+    //modal.classList.add('comment-modal');
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    modal.appendChild(modalContent);
+
+    const title = document.createElement('h1');
+    title.classList.add('comment-header');
+    title.textContent = ('Your Profile');
+    modalContent.appendChild(title);
+
+    // Where each comment will be displayed
+    const body = document.createElement('div');
+    body.id = "profileModalBody";
+    modalContent.appendChild(body);
+
+    showProfile();
+    profileClose();
+};
+
+// event listener for the profile window
+function showProfile() {
+    const profileButt = document.getElementById('profileButton');
+    profileButt.addEventListener("click", function() {
+        const profileModal = document.getElementById('profileModal');
+        profileModal.style.display = "block";
+    })
+};
+
+// functionality to close the modal window
+function profileClose() {
+    // When the user clicks anywhere outside of the modal, close it
+    const profileModal = document.getElementById('profileModal');
+    window.addEventListener("click", function(event) {
+        if (event.target == profileModal) {
+            profileModal.style.display = "none";
+        }
+    });
 };
 
 // logs the user out when the logout button is pressed
@@ -122,6 +192,7 @@ function logoutFunctionality() {
         // remove the login token
         sessionStorage.removeItem("loginToken");
         sessionStorage.removeItem("userID");
+        sessionStorage.removeItem("userName");
         // refresh the page
         document.location.reload(true);
     };
@@ -673,34 +744,6 @@ function upvoteModalClose() {
     });
 };
 
-// this function is called from function showUpvotes.
-// It fetches user information based on the userID provided from the
-// feed response.
-// TODO: Alert the user to log in if fetch fails
-// Apparently can't reutrn stuff from fetch so I had to move this into 
-// showUpvotes :(
-/*
-function fetchUpvotes(apiUrl, userID) {
-    const token = "Token " + sessionStorage.getItem("loginToken");
-
-    const options = {
-        method: 'GET',
-        headers: {
-            //'Content-Type': 'application/json',
-            'Authorization': token
-        }
-    };
-
-    fetch((`${apiUrl}/user?id=` + userID), options)
-        .then(response => response.json())
-        .then(response => {
-            console.log(response);
-            // console.log(response.username + ' is their username!');
-            // storing the username as a reference in sessionStorage
-            sessionStorage.setItem("username", response.username);
-        })
-} */
-
 // function creates the HTML framework for a post.
 function createPostHTML(thumbnailData, upvotes, apiUrl, response, index) {
     const userID = sessionStorage.getItem("userID");
@@ -860,7 +903,6 @@ function upvotePost(apiUrl, response, index) {
                 .then(response => {
                     console.log(response);
                     console.log('upvote removed successfully!');
-                    //upvoteButton[index].style.color = 'black';
                     upvoteButton[index].style.color = '#0079D3';
                 })
             return;
@@ -901,6 +943,7 @@ function getUserID(apiUrl) {
             console.log('id response' + response);
             const userID = response.id;
             sessionStorage.setItem("userID", userID);
+            sessionStorage.setItem("userName", response.username);
         })
 };
 
