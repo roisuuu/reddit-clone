@@ -21,6 +21,7 @@ function initApp(apiUrl) {
     logoutFunctionality();
     createProfileModal(apiUrl);
     createMain(apiUrl);
+    createPostModal();
     getUserID(apiUrl);
 };
 
@@ -139,6 +140,67 @@ function initialiseBannerElements() {
     }
 };
 
+// creates the post modal window
+function createPostModal() {
+    // needs to accept an image
+    // needs to accept a title
+    // needs to accept text
+    // needs to accept subseddit
+
+    const modal = document.createElement('div');
+    document.getElementById('root').appendChild(modal);
+    modal.id = "postModal";
+    modal.classList.add('modal');
+    //modal.classList.add('comment-modal');
+
+    const modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    modalContent.classList.add('profile-box');
+    modal.appendChild(modalContent);
+
+    const heading = document.createElement('h1');
+    heading.classList.add('sign-up-header');
+    heading.textContent = ('Post To Seddit');
+    modalContent.appendChild(heading);
+
+
+    showPostModal();
+    postClose();
+
+};
+
+function makePost(apiUrl) {
+
+};
+
+// event listener for the post window
+function showPostModal() {
+    const postButt = document.getElementById('postButton');
+    let token = sessionStorage.getItem("loginToken");
+
+    postButt.addEventListener("click", function() {
+        if (token === null) {
+            alert('Log-In to Post to Seddit!');
+            return;
+        }
+        const postModal = document.getElementById('postModal');
+        postModal.style.display = "block";
+    })
+};
+
+// functionality to close the modal window
+function postClose() {
+    // When the user clicks anywhere outside of the modal, close it
+    const postModal = document.getElementById('postModal');
+    window.addEventListener("click", function(event) {
+        if (event.target == postModal) {
+            postModal.style.display = "none";
+        }
+    });
+}
+
+
+
 // creates the user profile modal window
 function createProfileModal(apiUrl) {
     const modal = document.createElement('div');
@@ -188,8 +250,7 @@ function createProfileModal(apiUrl) {
     followers.textContent = '# Followers';
     infoList.appendChild(followers);
 
-
-    // TODO: div for posts
+    // Div for posts user has posted
     const postSection = document.createElement('div');
     const postDiv = document.createElement('div');
     postDiv.classList.add('post-div');
@@ -621,6 +682,7 @@ function createMain(apiUrl) {
     const postButton = document.createElement('button');
     postButton.classList.add('button');
     postButton.classList.add('button-secondary');
+    postButton.id = "postButton";
     postButton.textContent = ('Post');
     header.appendChild(postButton);
     // switch feed button (for logged in state)
