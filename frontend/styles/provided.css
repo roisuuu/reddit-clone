@@ -181,7 +181,6 @@ footer>* {
     height: 100%;
     /* Full height */
     overflow: auto;
-    
     /* Enable scroll if needed */
     background-color: rgb(0, 0, 0);
     /* Fallback color */
@@ -203,6 +202,7 @@ footer>* {
     border: 1px solid #888;
     width: 30%;
     padding: 5px;
+    border-radius: 5px;
 }
 
 .form-field {
@@ -260,4 +260,56 @@ footer>* {
     padding-bottom: 4px;
     color: black;
     font-size: 14px;
+}
+
+
+/* profile CSS */
+
+.profile-box {
+    width: 50%;
+    border-radius: 5px;
+}
+
+.username {
+    font-size: 20px;
+    text-decoration: bold;
+    text-align: center;
+}
+
+.no-bullets {
+    list-style-type: none;
+    margin: 25px;
+}
+
+.profile-li {
+    color: var(--reddit-blue);
+    font-size: 18px;
+    text-decoration: bold;
+    text-decoration: underline;
+    padding-bottom: 10px;
+    margin-left: 50px;
+}
+
+.post-div {
+    border: 2px solid var(--reddit-blue);
+    margin: 8px;
+}
+
+.post-box {
+    border: 2px dotted var(--reddit-blue);
+    margin: 8px;
+}
+
+.profile-post-title {
+    padding-bottom: 10px;
+    margin: 0;
+}
+
+.profile-alt-text {
+    color: var(--alt-text-color);
+}
+
+.profile-post-text {
+    font-size: 14px;
+    margin: 5px 0;
 }

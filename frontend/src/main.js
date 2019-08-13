@@ -19,7 +19,7 @@ function initApp(apiUrl) {
     signUpAuth(apiUrl);
     loginAuth(apiUrl);
     logoutFunctionality();
-    createProfileModal();
+    createProfileModal(apiUrl);
     createMain(apiUrl);
     getUserID(apiUrl);
 };
@@ -140,7 +140,7 @@ function initialiseBannerElements() {
 };
 
 // creates the user profile modal window
-function createProfileModal() {
+function createProfileModal(apiUrl) {
     const modal = document.createElement('div');
     document.getElementById('root').appendChild(modal);
     modal.id = "profileModal";
@@ -149,40 +149,171 @@ function createProfileModal() {
 
     const modalContent = document.createElement('div');
     modalContent.classList.add('modal-content');
+    modalContent.classList.add('profile-box');
     modal.appendChild(modalContent);
 
-    const title = document.createElement('h1');
-    title.classList.add('comment-header');
-    title.textContent = ('Your Profile');
-    modalContent.appendChild(title);
+    const heading = document.createElement('h1');
+    heading.classList.add('sign-up-header');
+    heading.textContent = ('Your Profile');
+    modalContent.appendChild(heading);
 
-    // Where each comment will be displayed
+    // Where user information will be displayed
     const body = document.createElement('div');
     body.id = "profileModalBody";
     modalContent.appendChild(body);
 
-    showProfile();
+    // User Information
+    const infoBox = document.createElement('div');
+    body.appendChild(infoBox);
+    // name, username, id
+    const username = document.createElement('h3');
+    username.id = 'profileUsername';
+    username.classList.add('username');
+    username.textContent = "username | name | User ID: #";
+    infoBox.appendChild(username);
+    // total posts, people following, total followers
+    const infoList = document.createElement('ul');
+    infoList.classList.add('no-bullets');
+    infoBox.appendChild(infoList);
+    const postCount = document.createElement('li');
+    postCount.classList.add('profile-li');
+    postCount.textContent = '# Posts';
+    infoList.appendChild(postCount);
+    const following = document.createElement('li');
+    following.classList.add('profile-li');
+    following.textContent = '# Following';
+    infoList.appendChild(following);
+    const followers = document.createElement('li');
+    followers.classList.add('profile-li');
+    followers.textContent = '# Followers';
+    infoList.appendChild(followers);
+
+
+    // TODO: div for posts
+    const postSection = document.createElement('div');
+    const postDiv = document.createElement('div');
+    postDiv.classList.add('post-div');
+    postDiv.id = "profilePosts";
+    /* This is an example to see how the post div is going to look
+    const example = document.createElement('div');
+    const title = document.createElement('h4');
+    title.textContent = 'post title here';
+    title.classList.add('profile-post-title');
+    title.classList.add('profile-alt-text');
+    example.appendChild(title);
+    const subseddit = document.createElement('p');
+    subseddit.classList.add('profile-post-text');
+    subseddit.classList.add('profile-alt-text');
+    subseddit.textContent = 'subseddit posted to';
+    example.appendChild(subseddit); */
+    const errorMsg = document.createElement('h2');
+    errorMsg.classList.add('error-msg');
+    errorMsg.id = "profilePostError";
+    errorMsg.textContent = "This User Has No Posts :(";
+    postSection.appendChild(errorMsg);
+    //postDiv.appendChild(example);
+    postSection.appendChild(postDiv);
+    body.appendChild(postSection);
+
+    showProfile(apiUrl);
     profileClose();
 };
 
-// event listener for the profile window
-function showProfile() {
-    const profileButt = document.getElementById('profileButton');
-    profileButt.addEventListener("click", function() {
-        const profileModal = document.getElementById('profileModal');
-        profileModal.style.display = "block";
-    })
+function fetchProfileDetails(apiUrl) {
+    const token = ('Token ' + sessionStorage.getItem("loginToken"));
+    const userDetails = document.getElementById('profileUsername');
+    const profileCounters = document.getElementsByClassName('profile-li');
+    const profilePosts = document.getElementById('profilePosts');
+
+    // fetch user details
+    const options = {
+        method: 'GET',
+        headers: {
+            'Authorization': token
+        }
+    };
+
+    fetch((`${apiUrl}/user/`), options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            console.log('fetched!')
+            const username = response.username;
+            const userID = response.id;
+            userDetails.textContent = (username + ' | ' + 'User ID: ' + userID);
+            profileCounters[0].textContent = (response.posts.length + ' Posts');
+            profileCounters[1].textContent = (response.following.length + ' Following');
+            profileCounters[2].textContent = (response.followed_num + ' Followers');
+
+            if (response.posts.length === 0) {
+                const errorMsg = document.getElementById('profilePostError');
+                errorMsg.style.display = "block";
+                console.log('no posts to show!');
+                profilePosts.style.display = "none";
+            } else {
+                // fetch post details, using post ID in user details
+                // loop thru posts array, fetch details and append to postDiv.
+                for (var i = 0; i < response.posts.length; i++) {
+                    let postID = response.posts[i];
+                    fetch((`${apiUrl}/post?id=` + postID), options)
+                        .then(response => response.json())
+                        .then(response => {
+                            console.log(response);
+                            const titleText = response.title;
+                            const subsedditText = response.meta.subseddit;
+                            // creating the post div to append
+                            const userPost = document.createElement('div');
+                            userPost.classList.add('post-box');
+                            const title = document.createElement('h4');
+                            title.textContent = titleText;
+                            title.classList.add('profile-post-title');
+                            title.classList.add('profile-alt-text');
+                            userPost.appendChild(title);
+                            const subseddit = document.createElement('p');
+                            subseddit.classList.add('profile-post-text');
+                            subseddit.classList.add('profile-alt-text');
+                            subseddit.textContent = subsedditText;
+                            userPost.appendChild(subseddit);
+                            profilePosts.appendChild(userPost);
+
+                        })
+                }
+            }
+        })
+
+
+
+    // get user posts into an array, then loop through the array, fetching post ID and adding
+    // to the posts section
 };
 
 // functionality to close the modal window
 function profileClose() {
     // When the user clicks anywhere outside of the modal, close it
     const profileModal = document.getElementById('profileModal');
+    const profilePosts = document.getElementById('profilePosts');
     window.addEventListener("click", function(event) {
         if (event.target == profileModal) {
+            while (profilePosts.firstChild) {
+                profilePosts.removeChild(profilePosts.firstChild);
+            }
+
+            const errorMsg = document.getElementById('profilePostError');
+            errorMsg.style.display = "none";
+
             profileModal.style.display = "none";
         }
     });
+}
+
+// event listener for the profile window
+function showProfile(apiUrl) {
+    const profileButt = document.getElementById('profileButton');
+    profileButt.addEventListener("click", function() {
+        const profileModal = document.getElementById('profileModal');
+        fetchProfileDetails(apiUrl);
+        profileModal.style.display = "block";
+    })
 };
 
 // logs the user out when the logout button is pressed
