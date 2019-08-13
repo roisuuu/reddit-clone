@@ -21,7 +21,7 @@ function initApp(apiUrl) {
     logoutFunctionality();
     createProfileModal(apiUrl);
     createMain(apiUrl);
-    createPostModal();
+    createPostModal(apiUrl);
     getUserID(apiUrl);
 };
 
@@ -141,7 +141,7 @@ function initialiseBannerElements() {
 };
 
 // creates the post modal window
-function createPostModal() {
+function createPostModal(apiUrl) {
     // needs to accept an image
     // needs to accept a title
     // needs to accept text
@@ -182,6 +182,21 @@ function createPostModal() {
     titleDiv.appendChild(titleForm);
     titleLabel.htmlFor = 'postTitle';
 
+    // creating the subseddit form
+    const subsedditDiv = document.createElement('div');
+    postForm.appendChild(subsedditDiv);
+    const subLabel = document.createElement('label');
+    subLabel.textContent = "Subseddit: ";
+    subsedditDiv.appendChild(subLabel);
+    const subForm = document.createElement('input');
+    subForm.id = 'subName';
+    subForm.setAttribute('type', "text");
+    subForm.setAttribute('placeholder', "Subseddit to Post to")
+    subForm.setAttribute('name', "subForm");
+    subForm.classList.add('form-field');
+    subsedditDiv.appendChild(subForm);
+    subLabel.htmlFor = 'subName';
+
     // creating the post text form
     const textDiv = document.createElement('div');
     postForm.appendChild(textDiv);
@@ -189,10 +204,10 @@ function createPostModal() {
     textLabel.textContent = "Post Content: ";
     textDiv.appendChild(textLabel);
     const textForm = document.createElement('textArea');
-    textForm.id = 'postText';
+    textForm.id = 'textArea';
     textForm.setAttribute('type', "text");
     textForm.setAttribute('placeholder', "Write Text Here")
-    textForm.setAttribute('name', "postText");
+        //textForm.setAttribute('name', "postText");
     textForm.classList.add('form-field');
     textDiv.appendChild(textForm);
     textLabel.htmlFor = 'postText';
@@ -200,30 +215,112 @@ function createPostModal() {
     // creating the add image button
     const imageButton = document.createElement('input');
     imageButton.classList.add('upload-img-butt');
+    imageButton.id = 'imageForm';
     imageButton.setAttribute('type', "file");
     imageButton.setAttribute('value', "Upload Image");
     imageButton.classList.add('form-field');
+    // on changing the path for the image, it encodes it, placing
+    // in global variable "encodedImage"
+    imageButton.onchange = encodeImg;
     postForm.appendChild(imageButton);
 
-    
     // creates a submit button
     const submitButton = document.createElement('input');
-    //submitButton.classList.add('button');
     submitButton.classList.add('post-button');
     submitButton.setAttribute('type', "submit");
     submitButton.setAttribute('value', "Post!");
     submitButton.classList.add('form-field');
     postForm.appendChild(submitButton);
 
-
     showPostModal();
     postClose();
-
+    makePost(apiUrl);
 };
 
 function makePost(apiUrl) {
+    const postModal = document.getElementById('postModal');
+    const postForm = document.getElementById('postForm');
+    const imageButton = document.getElementById('imageForm');
+    const token = 'Token ' + sessionStorage.getItem("loginToken");
+    console.log(window.encodedImage);
+    postForm.onsubmit = (e) => {
+        e.preventDefault();
 
+        // get title
+        // get text
+        // get image (if uploaded) convert to base64
+        // convert to json
+        const title = document.getElementById('postTitle').value;
+        const textContent = document.getElementById('textArea').value;
+        const subseddit = document.getElementById('subName').value;
+        console.log(subseddit);
+        if (title == "" || textContent == "" || subseddit == "") {
+            alert('Title, Subseddit and Text Content are Required!');
+            return;
+        }
+
+        if (window.encodedImage !== undefined) {
+            console.log("Image posted!");
+            var postBody = {
+                "title": title,
+                "text": textContent,
+                "subseddit": subseddit,
+                "image": window.encodedImage
+            };
+        } else {
+            console.log('no img!');
+            var postBody = {
+                "title": title,
+                "text": textContent,
+                "subseddit": subseddit
+            };
+        }
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(postBody),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        }
+
+        fetch(`${apiUrl}/post/`, options)
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+                if (response.post_id) {
+                    console.log('true');
+                    postForm.reset();
+                    postModal.style.display = 'none';
+                } else {
+                    console.log('false');
+                    alert('Post Failed, Error');
+                }
+            })
+    }
 };
+
+// converts an image to data url
+function encodeImg() {
+    const reader = new FileReader();
+    // grabs the image being uploaded by the post form 
+    const file = document.querySelector("input[type=file]").files[0];
+
+    // if the file exists
+    if (file) {
+        reader.readAsDataURL(file);
+        //console.log('file read')
+    }
+
+    reader.addEventListener('load', () => {
+        //console.log('var set?')
+        window.encodedImage = reader.result;
+        // using a global variable and returning only the encoded section
+        window.encodedImage = window.encodedImage.replace(/data.*,/gi, '');
+        //console.log(window.encodedImage);
+    })
+}
 
 // event listener for the post window
 function showPostModal() {
@@ -349,8 +446,8 @@ function fetchProfileDetails(apiUrl) {
     fetch((`${apiUrl}/user/`), options)
         .then(response => response.json())
         .then(response => {
-            console.log(response);
-            console.log('fetched!')
+            //console.log(response);
+            //console.log('fetched!')
             const username = response.username;
             const userID = response.id;
             userDetails.textContent = (username + ' | ' + 'User ID: ' + userID);
@@ -361,7 +458,7 @@ function fetchProfileDetails(apiUrl) {
             if (response.posts.length === 0) {
                 const errorMsg = document.getElementById('profilePostError');
                 errorMsg.style.display = "block";
-                console.log('no posts to show!');
+                //console.log('no posts to show!');
                 profilePosts.style.display = "none";
             } else {
                 // fetch post details, using post ID in user details
@@ -371,7 +468,7 @@ function fetchProfileDetails(apiUrl) {
                     fetch((`${apiUrl}/post?id=` + postID), options)
                         .then(response => response.json())
                         .then(response => {
-                            console.log(response);
+                            //console.log(response);
                             const titleText = response.title;
                             const subsedditText = response.meta.subseddit;
                             // creating the post div to append
@@ -531,7 +628,7 @@ function loginAuth(apiUrl) {
         // convert those to json
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        if ((username || password) === "") {
+        if ((username == "" || password) == "") {
             alert('please fill in all fields');
             return false;
         };
@@ -673,7 +770,7 @@ function signUpAuth(apiUrl) {
         const firstName = document.getElementById('firstName').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('newPassword').value;
-        if ((username || password || email || firstName) === "") {
+        if (username == "" || password == "" || email == "" || firstName == "") {
             alert('please fill in all fields');
             return false;
         };
@@ -855,7 +952,7 @@ function fetchUserFeed(apiUrl) {
     fetch(`${apiUrl}/user/feed?p=0&n=10`, options)
         .then(response => response.json())
         .then(response => {
-            console.log(response);
+            //console.log(response);
             if (response.posts.length === 0) {
                 alert('Your feed is empty, try following some users first! Or, browse the public feed.');
             } else {
@@ -863,7 +960,6 @@ function fetchUserFeed(apiUrl) {
                     const base64Thumbnail = response.posts[i].thumbnail;
                     const upvotes = response.posts[i].meta.upvotes.length;
                     const time = convertTime(response.posts[i].meta.published);
-                    console.log(upvotes);
                     createPostHTML(base64Thumbnail, upvotes, apiUrl, response, i);
 
                     // taking the text content from the API and pluggin it into the post
@@ -873,7 +969,6 @@ function fetchUserFeed(apiUrl) {
                     moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                     commentCount[i].textContent = (response.posts[i].comments.length + " comments");
                 }
-                console.log(response.posts[0].title);
             }
         })
 };
@@ -930,7 +1025,7 @@ function showUpvotes(apiUrl, response, index) {
     const upvoteModal = document.getElementById('upvoteModal');
     const modalList = document.getElementById('upvoteList');
     const loadingAnimation = document.getElementById('upvoteLoading');
-    
+
 
     // edit the modal dynamically while fetching user ids
     // by looping through upvotes array in the post
@@ -967,7 +1062,6 @@ function showUpvotes(apiUrl, response, index) {
         fetch((`${apiUrl}/user?id=` + userID), options)
             .then(response => response.json())
             .then(response => {
-                console.log(response);
                 var username = response.username;
                 // adds a list element in the modal content
                 let user = document.createElement('li');
@@ -1114,7 +1208,7 @@ function createPostHTML(thumbnailData, upvotes, apiUrl, response, index) {
 
     const thumbnailBox = document.createElement('div');
     thumbnailBox.classList.add('post-thumbnail');
-    if (thumbnailData === null) {
+    if (thumbnailData === null || thumbnailData == "") {
         thumbnailBox.style.display = "none";
     } else {
         const img = document.createElement('img');
@@ -1196,7 +1290,6 @@ function getUserID(apiUrl) {
     fetch((`${apiUrl}/user/`), options)
         .then(response => response.json())
         .then(response => {
-            console.log('id response' + response);
             const userID = response.id;
             sessionStorage.setItem("userID", userID);
             sessionStorage.setItem("userName", response.username);
