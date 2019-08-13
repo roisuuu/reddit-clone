@@ -6,12 +6,7 @@
 
 // ASSIGNMENT 2 BY ROYCE HUANG (z5258844)
 
-// import your own scripts here.
-// your app must take an apiUrl as an argument --
-// this will allow us to verify your apps behaviour with 
-// different datasets.
 function initApp(apiUrl) {
-    // your app initialisation goes here
     document.getElementById('root').style.position = 'relative';
     initialiseBannerElements();
     createUpvoteModal();
@@ -23,6 +18,11 @@ function initApp(apiUrl) {
     createMain(apiUrl);
     createPostModal(apiUrl);
     getUserID(apiUrl);
+    populate(apiUrl);
+    setInterval(function() {
+        populate(apiUrl)
+    }, 3000);
+
 };
 
 // creates all banner elements: logo, login, search, sign up
@@ -140,6 +140,32 @@ function initialiseBannerElements() {
     }
 };
 
+
+// part of my infinite scroll implementation
+// checks if your position is under 100 px away from the bottom of the page
+// if so, calls fetchExtra to fetch 5 more posts.
+// some things in there to make sure
+// this doesn't run on the public feed!
+function populate(apiUrl) {
+    let maxY = document.body.scrollHeight;
+    let clientHeight = document.body.clientHeight;
+    let relativeBottomY = (parseInt(clientHeight, 10) + parseInt(pageYOffset, 10));
+    const token = sessionStorage.getItem("loginToken");
+    const feedState = sessionStorage.getItem("feedState");
+
+    if (relativeBottomY > parseInt(maxY, 10) - 100 && maxY !== relativeBottomY && token !== null && feedState == "private") {
+        window.p += parseInt(window.n, 10);
+        //console.log('window.p is now ' + window.p);
+        window.n = 5;
+        //console.log('window.n is now ' + window.n);
+        fetchExtra(apiUrl);
+
+        // add 5 more posts to user feed?
+    }
+}
+
+
+
 // creates the post modal window
 function createPostModal(apiUrl) {
     // needs to accept an image
@@ -240,9 +266,7 @@ function createPostModal(apiUrl) {
 function makePost(apiUrl) {
     const postModal = document.getElementById('postModal');
     const postForm = document.getElementById('postForm');
-    const imageButton = document.getElementById('imageForm');
     const token = 'Token ' + sessionStorage.getItem("loginToken");
-    console.log(window.encodedImage);
     postForm.onsubmit = (e) => {
         e.preventDefault();
 
@@ -348,8 +372,6 @@ function postClose() {
     });
 }
 
-
-
 // creates the user profile modal window
 function createProfileModal(apiUrl) {
     const modal = document.createElement('div');
@@ -404,18 +426,8 @@ function createProfileModal(apiUrl) {
     const postDiv = document.createElement('div');
     postDiv.classList.add('post-div');
     postDiv.id = "profilePosts";
-    /* This is an example to see how the post div is going to look
-    const example = document.createElement('div');
-    const title = document.createElement('h4');
-    title.textContent = 'post title here';
-    title.classList.add('profile-post-title');
-    title.classList.add('profile-alt-text');
-    example.appendChild(title);
-    const subseddit = document.createElement('p');
-    subseddit.classList.add('profile-post-text');
-    subseddit.classList.add('profile-alt-text');
-    subseddit.textContent = 'subseddit posted to';
-    example.appendChild(subseddit); */
+
+    // error message for no posts
     const errorMsg = document.createElement('h2');
     errorMsg.classList.add('error-msg');
     errorMsg.id = "profilePostError";
@@ -490,8 +502,6 @@ function fetchProfileDetails(apiUrl) {
                 }
             }
         })
-
-
 
     // get user posts into an array, then loop through the array, fetching post ID and adding
     // to the posts section
@@ -874,6 +884,9 @@ function populateFeed(apiUrl) {
     // USER FEED:
     if (token !== null && feedState === "private") {
         headerText.textContent = "Popular Posts From Your Feed";
+        // setting global p and n to fetch 10 posts starting from 0
+        window.p = 0;
+        window.n = 5;
         // set feed state to private
         sessionStorage.setItem("feedState", "private");
         // refresh posts on front page to get them from /user/feed
@@ -932,7 +945,6 @@ function fetchPublicPosts(apiUrl) {
 
 // this function will get 10 posts from the user feed
 function fetchUserFeed(apiUrl) {
-
     // grab post html elements
     const heading = document.getElementsByClassName('post-title');
     const author = document.getElementsByClassName('post-author');
@@ -949,14 +961,17 @@ function fetchUserFeed(apiUrl) {
         }
     };
 
-    fetch(`${apiUrl}/user/feed?p=0&n=10`, options)
+    //fetch(`${apiUrl}/user/feed?p=0&n=10`, options)
+    fetch(`${apiUrl}/user/feed?p=` + window.p + '&n=' + window.n, options)
         .then(response => response.json())
         .then(response => {
             //console.log(response);
             if (response.posts.length === 0) {
                 alert('Your feed is empty, try following some users first! Or, browse the public feed.');
+                return;
             } else {
-                for (var i = 0; i < 10; i++) {
+                // console.log(response);
+                for (var i = 0; i < window.n; i++) {
                     const base64Thumbnail = response.posts[i].thumbnail;
                     const upvotes = response.posts[i].meta.upvotes.length;
                     const time = convertTime(response.posts[i].meta.published);
@@ -968,6 +983,59 @@ function fetchUserFeed(apiUrl) {
                     author[i].textContent = ('By @' + response.posts[i].meta.author);
                     moreInfo[i].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
                     commentCount[i].textContent = (response.posts[i].comments.length + " comments");
+                }
+            }
+        })
+};
+
+// part of infinite scroll
+// fetches 5 more posts by using global variables
+// window.p and window.n, declared in populateFeed()
+function fetchExtra(apiUrl) {
+    // grab post html elements
+    const heading = document.getElementsByClassName('post-title');
+    const author = document.getElementsByClassName('post-author');
+    const moreInfo = document.getElementsByClassName('extra-info');
+    const postText = document.getElementsByClassName('post-text');
+    const commentCount = document.getElementsByClassName('comment-count');
+    const token = "Token " + sessionStorage.getItem("loginToken");
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+        }
+    };
+    const feedPrivateUrl = `${apiUrl}/user/feed?p=` + window.p + '&n=' + window.n
+        //console.log('fetching posts from ' + window.p);
+        //console.log('window.n is ' + window.n);
+
+    fetch(feedPrivateUrl, options)
+        .then(response => response.json())
+        .then(response => {
+            //console.log(response);
+            if (response.posts.length === 0) {
+                //alert('Your feed is empty, try following some users first! Or, browse the public feed.');
+                return;
+            } else {
+                //console.log(response);
+                var j = window.p;
+                for (var i = 0; i < response.posts.length; i++) {
+
+                    const base64Thumbnail = response.posts[i].thumbnail;
+                    const upvotes = response.posts[i].meta.upvotes.length;
+                    const time = convertTime(response.posts[i].meta.published);
+                    createPostHTML(base64Thumbnail, upvotes, apiUrl, response, i);
+
+                    // taking the text content from the API and pluggin it into the post
+                    //console.log('j is ' + j);
+                    heading[j].textContent = response.posts[i].title;
+                    postText[j].textContent = response.posts[i].text;
+                    author[j].textContent = ('By @' + response.posts[i].meta.author);
+                    moreInfo[j].textContent = ('s/' + response.posts[i].meta.subseddit + ', time posted: ' + time);
+                    commentCount[j].textContent = (response.posts[i].comments.length + " comments");
+                    j++;
                 }
             }
         })
@@ -1020,12 +1088,12 @@ function createUpvoteModal() {
     upvoteModalClose();
 };
 
-// TODO: Loading Screen?
+// Added a loading screen but it's rarely seen because everything
+// loads so fast :(
 function showUpvotes(apiUrl, response, index) {
     const upvoteModal = document.getElementById('upvoteModal');
     const modalList = document.getElementById('upvoteList');
     const loadingAnimation = document.getElementById('upvoteLoading');
-
 
     // edit the modal dynamically while fetching user ids
     // by looping through upvotes array in the post
