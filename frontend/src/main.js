@@ -155,13 +155,65 @@ function createPostModal() {
 
     const modalContent = document.createElement('div');
     modalContent.classList.add('modal-content');
-    modalContent.classList.add('profile-box');
+    modalContent.classList.add('make-post-box');
     modal.appendChild(modalContent);
 
     const heading = document.createElement('h1');
     heading.classList.add('sign-up-header');
     heading.textContent = ('Post To Seddit');
     modalContent.appendChild(heading);
+
+    const postForm = document.createElement('form');
+    postForm.id = 'postForm';
+    modalContent.appendChild(postForm);
+
+    // creating the title form
+    const titleDiv = document.createElement('div');
+    postForm.appendChild(titleDiv);
+    const titleLabel = document.createElement('label');
+    titleLabel.textContent = "Title: ";
+    titleDiv.appendChild(titleLabel);
+    const titleForm = document.createElement('input');
+    titleForm.id = 'postTitle';
+    titleForm.setAttribute('type', "text");
+    titleForm.setAttribute('placeholder', "Post Title")
+    titleForm.setAttribute('name', "postTitle");
+    titleForm.classList.add('form-field');
+    titleDiv.appendChild(titleForm);
+    titleLabel.htmlFor = 'postTitle';
+
+    // creating the post text form
+    const textDiv = document.createElement('div');
+    postForm.appendChild(textDiv);
+    const textLabel = document.createElement('label');
+    textLabel.textContent = "Post Content: ";
+    textDiv.appendChild(textLabel);
+    const textForm = document.createElement('textArea');
+    textForm.id = 'postText';
+    textForm.setAttribute('type', "text");
+    textForm.setAttribute('placeholder', "Write Text Here")
+    textForm.setAttribute('name', "postText");
+    textForm.classList.add('form-field');
+    textDiv.appendChild(textForm);
+    textLabel.htmlFor = 'postText';
+
+    // creating the add image button
+    const imageButton = document.createElement('input');
+    imageButton.classList.add('upload-img-butt');
+    imageButton.setAttribute('type', "file");
+    imageButton.setAttribute('value', "Upload Image");
+    imageButton.classList.add('form-field');
+    postForm.appendChild(imageButton);
+
+    
+    // creates a submit button
+    const submitButton = document.createElement('input');
+    //submitButton.classList.add('button');
+    submitButton.classList.add('post-button');
+    submitButton.setAttribute('type', "submit");
+    submitButton.setAttribute('value', "Post!");
+    submitButton.classList.add('form-field');
+    postForm.appendChild(submitButton);
 
 
     showPostModal();
@@ -844,6 +896,11 @@ function createUpvoteModal() {
     title.textContent = ('Upvotes');
     modalContent.appendChild(title);
 
+    const loadingAnimation = document.createElement('div');
+    loadingAnimation.id = "upvoteLoading";
+    loadingAnimation.classList.add('loading-animation');
+    modalContent.appendChild(loadingAnimation);
+
     // where the users who upvotes a post will appear
     const body = document.createElement('div');
     body.id = "upvoteModalBody";
@@ -872,20 +929,25 @@ function createUpvoteModal() {
 function showUpvotes(apiUrl, response, index) {
     const upvoteModal = document.getElementById('upvoteModal');
     const modalList = document.getElementById('upvoteList');
+    const loadingAnimation = document.getElementById('upvoteLoading');
+    
 
     // edit the modal dynamically while fetching user ids
     // by looping through upvotes array in the post
     // if the user is not logged in, then display a message to log in >:(
     upvoteModal.style.display = "block";
+    loadingAnimation.style.display = "block";
 
     if (sessionStorage.getItem("loginToken") === null) {
         const errorMsg = document.getElementById('upvoteError');
         errorMsg.style.display = "block";
+        loadingAnimation.style.display = "none";
         return;
     } else if (response.posts[index].meta.upvotes.length === 0) {
         // no one has upvoted yet, so display a message
         const noUpvotesMsg = document.getElementById('noUpvotes');
         noUpvotesMsg.style.display = "block";
+        loadingAnimation.style.display = "none";
         return;
     }
 
@@ -911,6 +973,7 @@ function showUpvotes(apiUrl, response, index) {
                 let user = document.createElement('li');
                 user.textContent = username;
                 modalList.appendChild(user);
+                loadingAnimation.style.display = "none";
             })
     }
 };
@@ -1145,17 +1208,20 @@ function getUserID(apiUrl) {
 function showComments(response, index) {
     const commentModal = document.getElementById('commentModal');
     const commentBody = document.getElementById('commentSection');
+    const loadingAnimation = document.getElementById('commentLoading');
 
     commentModal.style.display = "block";
 
     // If user isn't logged in or no comments are available
     if (sessionStorage.getItem("loginToken") === null) {
         const errorMsg = document.getElementById('commentError');
+        loadingAnimation.style.display = "none";
         errorMsg.style.display = "block";
         return;
     } else if (response.posts[index].comments.length === 0) {
         // no one has commented yet, so display a message
         const noCommentsMsg = document.getElementById('noComments');
+        loadingAnimation.style.display = "none";
         noCommentsMsg.style.display = "block";
         return;
     }
@@ -1182,6 +1248,9 @@ function showComments(response, index) {
         commentContent.textContent = comment;
         commentDiv.appendChild(commentContent);
     }
+
+
+    loadingAnimation.style.display = "none";
 };
 
 function createCommentModal() {
@@ -1199,6 +1268,11 @@ function createCommentModal() {
     title.classList.add('comment-header');
     title.textContent = ('Comments');
     modalContent.appendChild(title);
+
+    const loadingAnimation = document.createElement('div');
+    loadingAnimation.id = "commentLoading";
+    loadingAnimation.classList.add('loading-animation');
+    modalContent.appendChild(loadingAnimation);
 
     // Where each comment will be displayed
     const body = document.createElement('div');
